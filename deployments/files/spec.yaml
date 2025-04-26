@@ -1,0 +1,896 @@
+openapi: 3.0.0
+servers:
+  - description: Lower Thirds API
+    url: https://virtserver.swaggerhub.com/pendenga/LowerThirds/1.0.0
+info:
+  description: Lower Thirds
+  version: "1.0.0"
+  title: Lower Thirds
+  contact:
+    email: pendenga@gmail.com
+tags:
+  - name: Meetings
+    description: Details about individual meetings
+  - name: Orgs
+    description: Details about orgs
+  - name: Slides
+    description: Details about orgs
+  - name: Users
+    description: Manage users
+paths:
+  /meetings:
+    get:
+      tags:
+        - Meetings
+      summary: List of meetings
+      description: List of meetings
+      operationId: getMeetings
+      parameters:
+        - $ref: "#/components/parameters/dateFrom"
+        - $ref: "#/components/parameters/dateTo"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/pageSize"
+      responses:
+        '201':
+          $ref: '#/components/responses/meetings'
+        '400':
+          description: 'invalid input, object invalid'
+    post:
+      tags:
+        - Meetings
+      summary: Creates a meeting
+      description: Creates a meeting
+      operationId: postMeetings
+      responses:
+        '201':
+          description: meeting created
+        '400':
+          description: 'invalid input, meeting invalid'
+        '409':
+          description: an existing meeting already exists
+      parameters: []
+      requestBody:
+        description: Meeting to add
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Meeting'
+  /meetings/{MeetingID}:
+    get:
+      tags:
+        - Meetings
+      summary: Get meeting
+      description: Get meeting
+      operationId: getMeeting
+      parameters:
+        - $ref: "#/components/parameters/meetingId"
+      responses:
+        '200':
+          $ref: '#/components/responses/meeting'
+        '401':
+          description: |
+            You did not supply valid Authorization. The response will be empty.
+        '404':
+          description: The record doesn’t exist. The response will be empty.
+    put:
+      tags:
+        - Meetings
+      summary: Update an existing meeting
+      description: Update an existing meeting
+      operationId: updateMeeting
+      parameters:
+        - $ref: "#/components/parameters/meetingId"
+      requestBody:
+        description: Meeting object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Meeting'
+      responses:
+        '200':
+          $ref: '#/components/responses/meeting'
+        '401':
+          description: |
+            You did not supply valid Authorization. The response will be empty.
+        '404':
+          description: The record doesn’t exist. The response will be empty.
+    delete:
+      tags:
+        - Meetings
+      summary: Delete a meeting
+      description: Delete a meeting
+      operationId: deleteMeeting
+      parameters:
+        - $ref: "#/components/parameters/meetingId"
+      responses:
+        '200':
+          description: The request was successful. The response will be empty.
+        '401':
+          description: You did not supply valid Authorization. The response will be empty.
+        '404':
+          description: The record doesn’t exist. The response will be empty.
+  /meetings/{MeetingID}/slides:
+    get:
+      tags:
+        - Meetings
+      summary: List of slides for a meeting
+      description: List of slides for a meeting
+      operationId: getSlides
+      parameters:
+        - $ref: "#/components/parameters/meetingId"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/pageSize"
+      responses:
+        '201':
+          $ref: '#/components/responses/slides'
+        '400':
+          description: 'invalid input, object invalid'
+    post:
+      tags:
+        - Meetings
+      summary: Adds a slide to a meeting
+      description: Adds a slide to a meeting
+      operationId: postSlide
+      responses:
+        '201':
+          description: slide created
+        '400':
+          description: 'invalid input, slide invalid'
+        '409':
+          description: an existing meeting already exists
+      parameters:
+        - $ref: "#/components/parameters/meetingId"
+      requestBody:
+        description: Meeting to add
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/BlankSlide'
+                - $ref: '#/components/schemas/LyricsSlide'
+                - $ref: '#/components/schemas/MessageSlide'
+                - $ref: '#/components/schemas/SpeakerSlide'
+                - $ref: '#/components/schemas/TimerSlide'
+  /orgs:
+    get:
+      tags:
+        - Orgs
+      summary: List of orgs
+      description: List of orgs
+      operationId: getOrgs
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/pageSize"
+      responses:
+        '201':
+          $ref: '#/components/responses/orgs'
+        '400':
+          description: 'invalid input, object invalid'
+    post:
+      tags:
+        - Orgs
+      summary: Creates an org
+      description: Creates an org
+      operationId: postOrgs
+      responses:
+        '201':
+          description: org created
+        '400':
+          description: 'invalid input, org invalid'
+        '409':
+          description: an existing org already exists
+      parameters: [ ]
+      requestBody:
+        description: Org to add
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Org'
+  /orgs/{OrgID}:
+    get:
+      tags:
+        - Orgs
+      summary: Get org
+      description: Get org
+      operationId: getOrg
+      parameters:
+        - $ref: "#/components/parameters/orgId"
+      responses:
+        '200':
+          $ref: '#/components/responses/org'
+        '401':
+          description: |
+            You did not supply valid Authorization. The response will be empty.
+        '404':
+          description: The record doesn’t exist. The response will be empty.
+    put:
+      tags:
+        - Orgs
+      summary: Update an existing org
+      description: Update an existing org
+      operationId: updateOrg
+      parameters:
+        - $ref: "#/components/parameters/orgId"
+      requestBody:
+        description: Org object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Org'
+      responses:
+        '200':
+          $ref: '#/components/responses/org'
+        '401':
+          description: |
+            You did not supply valid Authorization. The response will be empty.
+        '404':
+          description: The record doesn’t exist. The response will be empty.
+    delete:
+      tags:
+        - Orgs
+      summary: Delete an org
+      description: Delete an org
+      operationId: deleteOrg
+      parameters:
+        - $ref: "#/components/parameters/orgId"
+      responses:
+        '200':
+          description: The request was successful. The response will be empty.
+        '401':
+          description: |
+            You did not supply valid Authorization. The response will be empty.
+        '404':
+          description: The record doesn’t exist. The response will be empty.
+  /orgs/{OrgID}/meetings:
+    get:
+      tags:
+        - Orgs
+      summary: List of meetings for an org
+      description: List of meetings for an org
+      operationId: meetingsListByOrg
+      parameters:
+        - $ref: "#/components/parameters/orgId"
+        - $ref: "#/components/parameters/dateFrom"
+        - $ref: "#/components/parameters/dateTo"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/pageSize"
+      responses:
+        '201':
+          $ref: '#/components/responses/meetings'
+        '400':
+          description: 'invalid input, object invalid'
+  /orgs/{OrgID}/users:
+    get:
+      tags:
+        - Orgs
+      summary: List of users for an org
+      description: List of users for an org
+      operationId: usersListByOrg
+      parameters:
+        - $ref: "#/components/parameters/orgId"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/pageSize"
+      responses:
+        '201':
+          $ref: '#/components/responses/users'
+        '400':
+          description: 'invalid input, object invalid'
+  /slides/{SlideID}:
+    get:
+      tags:
+        - Slides
+      summary: Get slide
+      description: Get slide
+      operationId: getSlid
+      parameters:
+        - $ref: "#/components/parameters/slideId"
+      responses:
+        '200':
+          $ref: '#/components/responses/slide'
+        '401':
+          description: |
+            You did not supply valid Authorization. The response will be empty.
+        '404':
+          description: The record doesn’t exist. The response will be empty.
+    put:
+      tags:
+        - Slides
+      summary: Update an existing slide
+      description: Update an existing slide
+      operationId: updateSlide
+      parameters:
+        - $ref: "#/components/parameters/slideId"
+      requestBody:
+        description: Slide object
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/BlankSlide'
+                - $ref: '#/components/schemas/LyricsSlide'
+                - $ref: '#/components/schemas/MessageSlide'
+                - $ref: '#/components/schemas/SpeakerSlide'
+                - $ref: '#/components/schemas/TimerSlide'
+      responses:
+        '200':
+          $ref: '#/components/responses/slide'
+        '401':
+          description: |
+            You did not supply valid Authorization. The response will be empty.
+        '404':
+          description: The record doesn’t exist. The response will be empty.
+    delete:
+      tags:
+        - Slides
+      summary: Delete a slide
+      description: Delete a slide
+      operationId: deleteSlide
+      parameters:
+        - $ref: "#/components/parameters/slideId"
+      responses:
+        '200':
+          description: The request was successful. The response will be empty.
+        '401':
+          description: You did not supply valid Authorization. The response will be empty.
+        '404':
+          description: The record doesn’t exist. The response will be empty.
+  /users:
+    get:
+      tags:
+        - Users
+      summary: Get all users
+      description: Get all users
+      operationId: getUsers
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/pageSize"
+      responses:
+        '200':
+          $ref: '#/components/responses/users'
+        '401':
+          description: |
+            You did not supply valid Authorization. The response will be empty.
+    post:
+      tags:
+        - Users
+      summary: Add a new user
+      description: Add a new user
+      operationId: addUser
+      parameters: []
+      requestBody:
+        description: User object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          $ref: '#/components/responses/user'
+        '401':
+          description: |
+            You did not supply valid Authorization. The response will be empty.
+  /users/{UserID}:
+    get:
+      tags:
+        - Users
+      summary: Get user
+      description: Get user
+      operationId: getUser
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      responses:
+        '200':
+          $ref: '#/components/responses/user'
+        '401':
+          description: |
+            You did not supply valid Authorization. The response will be empty.
+        '404':
+          description: The record doesn’t exist. The response will be empty.
+    put:
+      tags:
+        - Users
+      summary: Update an existing user
+      description: Update an existing user
+      operationId: updateUser
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      requestBody:
+        description: User object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          $ref: '#/components/responses/user'
+        '401':
+          description: |
+            You did not supply valid Authorization. The response will be empty.
+        '404':
+          description: The record doesn’t exist. The response will be empty.
+    delete:
+      tags:
+        - Users
+      summary: Delete a User
+      description: Delete a User
+      operationId: deleteUser
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      responses:
+        '200':
+          description: The request was successful. The response will be empty.
+        '401':
+          description: You did not supply valid Authorization. The response will be empty.
+        '404':
+          description: The record doesn’t exist. The response will be empty.
+  /users/{UserID}/meetings:
+    get:
+      tags:
+        - Users
+      summary: List of meetings for a user
+      description: List of meetings for a user
+      operationId: getUserMeetings
+      parameters:
+        - $ref: "#/components/parameters/userId"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/pageSize"
+      responses:
+        '201':
+          $ref: '#/components/responses/meetings'
+        '400':
+          description: 'invalid input, object invalid'
+  /users/{UserID}/orgs:
+    get:
+      tags:
+        - Users
+      summary: List of orgs for a user
+      description: List of orgs for a user
+      operationId: getUserOrgs
+      parameters:
+        - $ref: "#/components/parameters/userId"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/pageSize"
+      responses:
+        '201':
+          $ref: '#/components/responses/orgs'
+        '400':
+          description: 'invalid input, object invalid'
+    put:
+      tags:
+        - Users
+      summary: Sets the list of orgs for a user
+      description: Sets the list of orgs for a user
+      operationId: setUserOrgs
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      requestBody:
+        description: List of org IDs
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IDList'
+      responses:
+        '201':
+          description: orgs set for user
+        '400':
+          description: 'invalid input, orgs invalid'
+components:
+  schemas:
+    BlankSlide:
+      type: object
+      description: Blank slide definition
+      required:
+        - id
+        - type
+        - order
+        - meeting_role
+      properties:
+        id:
+          $ref: '#/components/schemas/ID'
+        type:
+          $ref: '#/components/schemas/SlideType'
+        order:
+          $ref: '#/components/schemas/Order'
+        meeting_role:
+          $ref: '#/components/schemas/MeetingRole'
+    Date:
+      type: string
+      format: date-time
+      example: 2025-08-29T09:12:33.001Z
+    Duration:
+      type: integer
+      example: 5
+    Hymn:
+      type: object
+      required:
+        - id
+        - language
+        - page
+        - title
+        - verses
+      properties:
+        id:
+          $ref: '#/components/schemas/ID'
+        language:
+          $ref: '#/components/schemas/Language'
+        page:
+          type: integer
+        title:
+          type: string
+        verses:
+          $ref: '#/components/schemas/Verses'
+    ID:
+      type: string
+      format: uuid
+      example: 9c7b7971-5d35-4f32-8b5a-ffb93e8f6656
+    IDList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Verses'
+      example: [7e0981a5-1159-4e4e-9057-c17817f442ee, 29755439-5bd6-4e17-ae67-156fb2441e34]
+    Language:
+      title: Language
+      description: Language
+      type: string
+      enum:
+        - eng
+        - spa
+    LyricsSlide:
+      type: object
+      description: Lyrics slide definition
+      required:
+        - id
+        - type
+        - order
+        - meeting_role
+        - primary_hymn
+      properties:
+        id:
+          $ref: '#/components/schemas/ID'
+        type:
+          $ref: '#/components/schemas/SlideType'
+        order:
+          $ref: '#/components/schemas/Order'
+        meeting_role:
+          $ref: '#/components/schemas/MeetingRole'
+        primary_hymn:
+          $ref: '#/components/schemas/Hymn'
+        secondary_hymn:
+          $ref: '#/components/schemas/Hymn'
+    Meeting:
+      type: object
+      required:
+        - org
+        - meetingDate
+      properties:
+        id:
+          $ref: '#/components/schemas/ID'
+        org_id:
+          $ref: '#/components/schemas/ID'
+        conference:
+          type: string
+          example: Stake Conference
+        meeting:
+          type: string
+          example: General Session
+        date:
+          $ref: '#/components/schemas/Date'
+        duration:
+          $ref: '#/components/schemas/Duration'
+    MeetingRole:
+      type: string
+      example: Meeting intro
+    Message:
+      type: string
+      example: The broadcast has concluded
+    MessageSlide:
+      type: object
+      description: Blank slide definition
+      required:
+        - id
+        - type
+        - order
+        - meeting_role
+        - primary_text
+      properties:
+        id:
+          $ref: '#/components/schemas/ID'
+        type:
+          $ref: '#/components/schemas/SlideType'
+        order:
+          $ref: '#/components/schemas/Order'
+        meeting_role:
+          $ref: '#/components/schemas/MeetingRole'
+        primary_text:
+          $ref: '#/components/schemas/Message'
+        secondary_text:
+          $ref: '#/components/schemas/Message'
+    Name:
+      type: string
+      example: President Gregory Knight
+    Order:
+      type: integer
+      example: 0
+    Org:
+      type: object
+      required:
+        - name
+      properties:
+        id:
+          $ref: '#/components/schemas/ID'
+        name:
+          type: string
+          example: Mesa Flatiron Stake
+    SlideType:
+      title: Slide Type
+      description: Slide Type
+      type: string
+      enum:
+        - blank
+        - message
+        - speaker
+        - lyrics
+        - timer
+    SpeakerSlide:
+      type: object
+      description: Speaker slide definition
+      required:
+        - id
+        - type
+        - order
+        - meeting_role
+        - name
+        - title
+      properties:
+        id:
+          $ref: '#/components/schemas/ID'
+        type:
+          $ref: '#/components/schemas/SlideType'
+        order:
+          $ref: '#/components/schemas/Order'
+        meeting_role:
+          $ref: '#/components/schemas/MeetingRole'
+        name:
+          $ref: '#/components/schemas/Name'
+        title:
+          $ref: '#/components/schemas/Title'
+    TimerSlide:
+      type: object
+      description: Blank slide definition
+      required:
+        - id
+        - type
+        - order
+        - meeting_role
+        - target_date
+        - show_meeting_details
+      properties:
+        id:
+          $ref: '#/components/schemas/ID'
+        type:
+          $ref: '#/components/schemas/SlideType'
+        order:
+          $ref: '#/components/schemas/Order'
+        meeting_role:
+          $ref: '#/components/schemas/MeetingRole'
+        show_meeting_details:
+          type: boolean
+          default: false
+    Title:
+      type: string
+      example: Stake President
+    User:
+      type: object
+      description: User definition
+      required:
+        - id
+        - email
+        - full_name
+        - connections
+      properties:
+        id:
+          $ref: '#/components/schemas/ID'
+        email:
+          type: string
+          format: email
+          example: pendenga@gmail.com
+        first_name:
+          type: string
+          example: Grant
+        full_name:
+          type: string
+          example: Grant Anderson
+        last_name:
+          type: string
+          example: Anderson
+    Verses:
+      type: object
+      description: Set of one or more verses
+      properties:
+        number:
+          type: integer
+        optional:
+          type: boolean
+        lines:
+          type: array
+          items:
+            type: string
+  parameters:
+    dateFrom:
+      in: query
+      name: DateFrom
+      description: pass an optional start date for filter
+      required: false
+      schema:
+        type: string
+        format: date
+    dateTo:
+      in: query
+      name: DateTo
+      description: pass an optional end date for filter
+      required: false
+      schema:
+        type: string
+        format: date
+    meetingId:
+      in: path
+      name: MeetingID
+      description: Unique identifier for a meeting
+      required: true
+      schema:
+        $ref: '#/components/schemas/ID'
+    orgId:
+      in: path
+      name: OrgID
+      description: pass an optional org filter
+      required: true
+      schema:
+        $ref: '#/components/schemas/ID'
+    page:
+      in: query
+      name: Page
+      description: The zero-indexed page number of results (see _limit_)
+      schema:
+        type: integer
+        format: int32
+        example: 0
+        minimum: 0
+        default: 0
+    pageSize:
+      in: query
+      name: PageSize
+      description: The maximum number of records to be returned
+      schema:
+        type: integer
+        format: int32
+        example: 10
+        minimum: 0
+        maximum: 1000
+        default: 50
+    slideId:
+      in: path
+      name: SlideID
+      description: Unique identifier for a slide
+      required: true
+      schema:
+        $ref: '#/components/schemas/ID'
+    userId:
+      in: path
+      name: UserID
+      description: Unique identifier for a User
+      required: true
+      schema:
+        $ref: '#/components/schemas/ID'
+  responses:
+    blankSlide:
+      description: A single blank slide
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BlankSlide'
+    lyricsSlide:
+      description: A single lyrics slide
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LyricsSlide'
+    messageSlide:
+      description: A single message slide
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MessageSlide'
+    meeting:
+      description: A single meeting
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Meeting'
+    meetings:
+      description: A list of meetings
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Meeting'
+    org:
+      description: A single org
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Org'
+    orgs:
+      description: A list of orgs
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Org'
+    slide:
+      description: List of slides
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/BlankSlide'
+              - $ref: '#/components/schemas/LyricsSlide'
+              - $ref: '#/components/schemas/MessageSlide'
+              - $ref: '#/components/schemas/SpeakerSlide'
+              - $ref: '#/components/schemas/TimerSlide'
+            discriminator:
+              propertyName: SlideType
+              mapping:
+                blank: '#/components/schemas/BlankSlide'
+                lyrics: '#/components/schemas/LyricsSlide'
+                message: '#/components/schemas/MessageSlide'
+                speaker: '#/components/schemas/SpeakerSlide'
+                timer: '#/components/schemas/TimerSlide'
+    slides:
+      description: List of slides
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              oneOf:
+                - $ref: '#/components/schemas/BlankSlide'
+                - $ref: '#/components/schemas/LyricsSlide'
+                - $ref: '#/components/schemas/MessageSlide'
+                - $ref: '#/components/schemas/SpeakerSlide'
+                - $ref: '#/components/schemas/TimerSlide'
+            discriminator:
+              propertyName: SlideType
+              mapping:
+                blank: '#/components/schemas/BlankSlide'
+                lyrics: '#/components/schemas/LyricsSlide'
+                message: '#/components/schemas/MessageSlide'
+                speaker: '#/components/schemas/SpeakerSlide'
+                timer: '#/components/schemas/TimerSlide'
+    speakerSlide:
+      description: A single speaker slide
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SpeakerSlide'
+    timerSlide:
+      description: A single timer slide
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TimerSlide'
+    user:
+      description: A single user
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/User'
+    users:
+      description: List of users
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/User'
