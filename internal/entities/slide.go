@@ -61,8 +61,8 @@ type LyricsSlide struct {
 	SlideType       string        `db:"slide_type" json:"slide_type"`
 	SlideOrder      int           `db:"slide_order" json:"slide_order"`
 	MeetingRole     string        `db:"meeting_role" json:"meeting_role"`
-	PrimaryHymnID   uuid.NullUUID `db:"primary_hymn_id" json:"primary_hymn_id"`
-	SecondaryHymnID uuid.NullUUID `db:"secondary_hymn_id" json:"secondary_hymn_id"`
+	HymnID          uuid.NullUUID `db:"hymn_id" json:"hymn_id"`
+	ShowTranslation bool          `db:"show_translation" json:"show_translation"`
 	DeletedDT       null.Time     `db:"deleted_dt" json:"deleted_dt"`
 	InsertedDT      time.Time     `db:"inserted_dt" json:"inserted_dt"`
 	UpdatedDT       time.Time     `db:"updated_dt" json:"updated_dt"`

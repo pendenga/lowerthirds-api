@@ -9,21 +9,35 @@ import (
 )
 
 type LowerThirdsService interface {
+	// Hymns
+	CreateHymn(ctx context.Context, h *entities.Hymn) error
+	DeleteHymn(ctx context.Context, hymnID uuid.UUID) error
+	GetHymn(ctx context.Context, hymnID uuid.UUID) (*entities.Hymn, error)
+	GetHymns(ctx context.Context) (*[]entities.Hymn, error)
+	UpdateHymn(ctx context.Context, hymnID uuid.UUID, h *entities.Hymn) error
+
+	// Verses
+	CreateVerse(ctx context.Context, hymnID uuid.UUID, v *entities.HymnVerse) error
+	DeleteVerse(ctx context.Context, hymnID uuid.UUID, verseNum int) error
+	GetVerse(ctx context.Context, hymnID uuid.UUID, verseNum int) (*entities.HymnVerse, error)
+	GetVerses(ctx context.Context, hymnID uuid.UUID) (*[]entities.HymnVerse, error)
+	UpdateVerse(ctx context.Context, hymnID uuid.UUID, verseNum int, v *entities.HymnVerse) error
+
 	// Meetings
 	CreateMeeting(ctx context.Context, m *entities.Meeting) error
 	DeleteMeeting(ctx context.Context, meetingID uuid.UUID) error
 	GetMeeting(ctx context.Context, meetingID uuid.UUID) (*entities.Meeting, error)
 	GetMeetings(ctx context.Context) (*[]entities.Meeting, error)
+	UpdateMeeting(ctx context.Context, meetingID uuid.UUID, m *entities.Meeting) error
 	GetMeetingsByOrg(ctx context.Context, orgID uuid.UUID) (*[]entities.Meeting, error)
 	GetMeetingsByUser(ctx context.Context, userID uuid.UUID) (*[]entities.Meeting, error)
-	UpdateMeeting(ctx context.Context, meetingID uuid.UUID, m *entities.Meeting) error
 
 	// Orgs
-	CreateOrg(ctx context.Context, m *entities.Organization) error
+	CreateOrg(ctx context.Context, o *entities.Organization) error
 	DeleteOrg(ctx context.Context, orgID uuid.UUID) error
 	GetOrg(ctx context.Context, orgID uuid.UUID) (*entities.Organization, error)
 	GetOrgs(ctx context.Context) (*[]entities.Organization, error)
-	UpdateOrg(ctx context.Context, orgID uuid.UUID, m *entities.Organization) error
+	UpdateOrg(ctx context.Context, orgID uuid.UUID, o *entities.Organization) error
 
 	// OrgUser
 	CreateOrgUser(ctx context.Context, orgID uuid.UUID, userID uuid.UUID) error
@@ -41,11 +55,11 @@ type LowerThirdsService interface {
 	UpdateSlide(ctx context.Context, slideID uuid.UUID, slide entities.Slide) error
 
 	// Users
-	CreateUser(ctx context.Context, m *entities.User) error
+	CreateUser(ctx context.Context, u *entities.User) error
 	DeleteUser(ctx context.Context, userID uuid.UUID) error
 	GetUser(ctx context.Context, userID uuid.UUID) (*entities.User, error)
 	GetUsers(ctx context.Context) (*[]entities.User, error)
-	UpdateUser(ctx context.Context, userID uuid.UUID, m *entities.User) error
+	UpdateUser(ctx context.Context, userID uuid.UUID, u *entities.User) error
 }
 
 type lowerThirdsService struct {

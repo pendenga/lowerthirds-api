@@ -41,15 +41,6 @@ func New() *logrus.Entry {
 }
 
 func WithContext(ctx context.Context, log *logrus.Entry) *logrus.Entry {
-	if requestID, ok := ctx.Value(helpers.RequestIDKey).(string); ok {
-		log = log.WithField("requestID", requestID)
-	}
-	if accountID, ok := ctx.Value(helpers.AccountIDKey).(string); ok {
-		log = log.WithField("accountID", accountID)
-	}
-	if username, ok := ctx.Value(helpers.UsernameKey).(string); ok {
-		log = log.WithField("username", username)
-	}
 	if userID, ok := ctx.Value(helpers.UserIDKey).(string); ok {
 		log = log.WithField("userID", userID)
 	}

@@ -20,14 +20,30 @@ type Route struct {
 type Routes []Route
 
 func (s *Server) Route() {
+	// add middleware for every request
+	s.router.Use(authClaims(s.Logger))
+	s.router.Use(queryParametersInContext(s.Logger))
+
 	var routes = Routes{
+		// hymns
+		Route{"getHymns", "GET", "/hymns", s.getHymns()},
+		Route{"postHymn", "POST", "/hymns", s.postHymn()},
+		Route{"getHymn", "GET", "/hymns/{HymnID}", s.getHymn()},
+		Route{"updateHymn", "PUT", "/hymns/{HymnID}", s.updateHymn()},
+		Route{"deleteHymn", "DELETE", "/hymns/{HymnID}", s.deleteHymn()},
+		Route{"getVerses", "GET", "/hymns/{HymnID}/verses", s.getVerses()},
+		Route{"postVerse", "POST", "/hymns/{HymnID}/verses", s.postVerse()},
+		Route{"getVerse", "GET", "/hymns/{HymnID}/verses/{VerseID}", s.getVerse()},
+		Route{"updateVerse", "PUT", "/hymns/{HymnID}/verses/{VerseID}", s.updateVerse()},
+		Route{"deleteVerse", "DELETE", "/hymns/{HymnID}/verses/{VerseID}", s.deleteVerse()},
+
 		// meetings
 		Route{"getMeetings", "GET", "/meetings", s.getMeetings()},
 		Route{"postMeeting", "POST", "/meetings", s.postMeeting()},
 		Route{"getMeeting", "GET", "/meetings/{MeetingID}", s.getMeeting()},
 		Route{"updateMeeting", "PUT", "/meetings/{MeetingID}", s.updateMeeting()},
 		Route{"deleteMeeting", "DELETE", "/meetings/{MeetingID}", s.deleteMeeting()},
-		Route{"getSlides", "GET", "/meetings/{MeetingID}/slides", s.getMeetingSlides()},
+		Route{"getMeetingSlides", "GET", "/meetings/{MeetingID}/slides", s.getMeetingSlides()},
 
 		// orgs
 		Route{"getOrgs", "GET", "/orgs", s.getOrgs()},
@@ -56,7 +72,6 @@ func (s *Server) Route() {
 		Route{"setUserOrgs", "PUT", "/users/{UserID}/orgs", s.setOrgsByUser()},
 	}
 	for _, r := range routes {
-		s.router.Use(authClaims(s.Logger))
 		s.router.Handle(r.Pattern, r.Handler).Methods(r.Method).Name(r.Name)
 	}
 
@@ -66,7 +81,10 @@ func (s *Server) Route() {
 func authClaims(log *logrus.Entry) mux.MiddlewareFunc {
 	return mux.MiddlewareFunc(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			log.Debug("authClaims middleware")
 			ctx := r.Context()
+
+			// TODO: find the right place for this
 			w.Header().Set("Content-Type", "application/json")
 
 			a := r.Header.Get("Authorization")

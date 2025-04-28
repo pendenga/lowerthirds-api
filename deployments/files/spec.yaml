@@ -9,6 +9,8 @@ info:
   contact:
     email: pendenga@gmail.com
 tags:
+  - name: Hymns
+    description: Details about hymns in multiple languages
   - name: Meetings
     description: Details about individual meetings
   - name: Orgs
@@ -18,6 +20,193 @@ tags:
   - name: Users
     description: Manage users
 paths:
+  /hymns:
+    get:
+      tags:
+        - Hymns
+      summary: List of hymns
+      description: List of hymns
+      operationId: getHymns
+      parameters:
+        - $ref: "#/components/parameters/dateFrom"
+        - $ref: "#/components/parameters/dateTo"
+        - $ref: "#/components/parameters/language"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/pageSize"
+      responses:
+        '201':
+          $ref: '#/components/responses/hymns'
+        '400':
+          description: 'invalid input, object invalid'
+    post:
+      tags:
+        - Hymns
+      summary: Creates a hymn
+      description: Creates a hymn
+      operationId: postHymns
+      responses:
+        '201':
+          description: hymn created
+        '400':
+          description: 'invalid input, hymn invalid'
+        '409':
+          description: an existing hymn already exists
+      parameters: []
+      requestBody:
+        description: Hymn to add
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Hymn'
+  /hymns/{HymnID}:
+    get:
+      tags:
+        - Hymns
+      summary: Get hymn
+      description: Get hymn
+      operationId: getHymn
+      parameters:
+        - $ref: "#/components/parameters/hymnId"
+      responses:
+        '200':
+          $ref: '#/components/responses/hymn'
+        '401':
+          description: |
+            You did not supply valid Authorization. The response will be empty.
+        '404':
+          description: The record doesn’t exist. The response will be empty.
+    put:
+      tags:
+        - Hymns
+      summary: Update an existing hymn
+      description: Update an existing hymn
+      operationId: updateHymn
+      parameters:
+        - $ref: "#/components/parameters/hymnId"
+      requestBody:
+        description: Hymn object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Hymn'
+      responses:
+        '200':
+          $ref: '#/components/responses/hymn'
+        '401':
+          description: |
+            You did not supply valid Authorization. The response will be empty.
+        '404':
+          description: The record doesn’t exist. The response will be empty.
+    delete:
+      tags:
+        - Hymns
+      summary: Delete a hymn
+      description: Delete a hymn
+      operationId: deleteHymn
+      parameters:
+        - $ref: "#/components/parameters/hymnId"
+      responses:
+        '200':
+          description: The request was successful. The response will be empty.
+        '401':
+          description: You did not supply valid Authorization. The response will be empty.
+        '404':
+          description: The record doesn’t exist. The response will be empty.
+  /hymns/{HymnID}/verses:
+    get:
+      tags:
+        - Hymns
+      summary: List of verses for a hymn
+      description: List of verses for a hymn
+      operationId: getVerses
+      parameters:
+        - $ref: "#/components/parameters/hymnId"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/pageSize"
+      responses:
+        '201':
+          $ref: '#/components/responses/verses'
+        '400':
+          description: 'invalid input, object invalid'
+    post:
+      tags:
+        - Hymns
+      summary: Adds a verse to a hymn
+      description: Adds a verse to a hymn
+      operationId: postVerse
+      responses:
+        '201':
+          description: verse created
+        '400':
+          description: 'invalid input, verse invalid'
+        '409':
+          description: an existing verse already exists
+      parameters:
+        - $ref: "#/components/parameters/hymnId"
+      requestBody:
+        description: Hymn to add
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/Verse'
+  /hymns/{HymnID}/verse/{VerseID}:
+    get:
+      tags:
+        - Hymns
+      summary: Get verse
+      description: Get verse
+      operationId: getVerse
+      parameters:
+        - $ref: "#/components/parameters/hymnId"
+        - $ref: "#/components/parameters/verseId"
+      responses:
+        '200':
+          $ref: '#/components/responses/verse'
+        '401':
+          description: |
+            You did not supply valid Authorization. The response will be empty.
+        '404':
+          description: The record doesn’t exist. The response will be empty.
+    put:
+      tags:
+        - Hymns
+      summary: Update an existing verse
+      description: Update an existing verse
+      operationId: updateVerse
+      parameters:
+        - $ref: "#/components/parameters/hymnId"
+        - $ref: "#/components/parameters/verseId"
+      requestBody:
+        description: Verse object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Verse'
+      responses:
+        '200':
+          $ref: '#/components/responses/verse'
+        '401':
+          description: |
+            You did not supply valid Authorization. The response will be empty.
+        '404':
+          description: The record doesn’t exist. The response will be empty.
+    delete:
+      tags:
+        - Hymns
+      summary: Delete a verse
+      description: Delete a verse
+      operationId: deleteVerse
+      parameters:
+        - $ref: "#/components/parameters/hymnId"
+        - $ref: "#/components/parameters/verseId"
+      responses:
+        '200':
+          description: The request was successful. The response will be empty.
+        '401':
+          description: You did not supply valid Authorization. The response will be empty.
+        '404':
+          description: The record doesn’t exist. The response will be empty.
   /meetings:
     get:
       tags:
@@ -115,7 +304,7 @@ paths:
         - Meetings
       summary: List of slides for a meeting
       description: List of slides for a meeting
-      operationId: getSlides
+      operationId: getMeetingSlides
       parameters:
         - $ref: "#/components/parameters/meetingId"
         - $ref: "#/components/parameters/page"
@@ -125,32 +314,6 @@ paths:
           $ref: '#/components/responses/slides'
         '400':
           description: 'invalid input, object invalid'
-    post:
-      tags:
-        - Meetings
-      summary: Adds a slide to a meeting
-      description: Adds a slide to a meeting
-      operationId: postSlide
-      responses:
-        '201':
-          description: slide created
-        '400':
-          description: 'invalid input, slide invalid'
-        '409':
-          description: an existing meeting already exists
-      parameters:
-        - $ref: "#/components/parameters/meetingId"
-      requestBody:
-        description: Meeting to add
-        content:
-          application/json:
-            schema:
-              oneOf:
-                - $ref: '#/components/schemas/BlankSlide'
-                - $ref: '#/components/schemas/LyricsSlide'
-                - $ref: '#/components/schemas/MessageSlide'
-                - $ref: '#/components/schemas/SpeakerSlide'
-                - $ref: '#/components/schemas/TimerSlide'
   /orgs:
     get:
       tags:
@@ -275,6 +438,50 @@ paths:
           $ref: '#/components/responses/users'
         '400':
           description: 'invalid input, object invalid'
+  /slides:
+    get:
+      tags:
+        - Slides
+      summary: List of slides
+      description: List of slides
+      operationId: getSlides
+      parameters:
+        - $ref: "#/components/parameters/meetingId"
+        - $ref: "#/components/parameters/orgId"
+        - $ref: "#/components/parameters/dateFrom"
+        - $ref: "#/components/parameters/dateTo"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/pageSize"
+      responses:
+        '201':
+          $ref: '#/components/responses/slides'
+        '400':
+          description: 'invalid input, object invalid'
+    post:
+      tags:
+        - Slides
+      summary: Creates a slide
+      description: Creates a slide
+      operationId: postSlide
+      responses:
+        '201':
+          description: slide created
+        '400':
+          description: 'invalid input, slide invalid'
+        '409':
+          description: an existing slide already exists
+      parameters: []
+      requestBody:
+        description: Meeting to add
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/BlankSlide'
+                - $ref: '#/components/schemas/LyricsSlide'
+                - $ref: '#/components/schemas/MessageSlide'
+                - $ref: '#/components/schemas/SpeakerSlide'
+                - $ref: '#/components/schemas/TimerSlide'
   /slides/{SlideID}:
     get:
       tags:
@@ -506,8 +713,7 @@ components:
         - id
         - language
         - page
-        - title
-        - verses
+        - name
       properties:
         id:
           $ref: '#/components/schemas/ID'
@@ -515,10 +721,15 @@ components:
           $ref: '#/components/schemas/Language'
         page:
           type: integer
-        title:
+        name:
           type: string
+          example: Redeemer of Israel
+        translation_id:
+          $ref: '#/components/schemas/ID'
         verses:
-          $ref: '#/components/schemas/Verses'
+          type: array
+          items:
+            $ref: '#/components/schemas/Verse'
     ID:
       type: string
       format: uuid
@@ -526,7 +737,7 @@ components:
     IDList:
       type: array
       items:
-        $ref: '#/components/schemas/Verses'
+        $ref: '#/components/schemas/ID'
       example: [7e0981a5-1159-4e4e-9057-c17817f442ee, 29755439-5bd6-4e17-ae67-156fb2441e34]
     Language:
       title: Language
@@ -543,7 +754,7 @@ components:
         - type
         - order
         - meeting_role
-        - primary_hymn
+        - hymn_id
       properties:
         id:
           $ref: '#/components/schemas/ID'
@@ -553,10 +764,11 @@ components:
           $ref: '#/components/schemas/Order'
         meeting_role:
           $ref: '#/components/schemas/MeetingRole'
-        primary_hymn:
+        hymn_id:
           $ref: '#/components/schemas/Hymn'
-        secondary_hymn:
-          $ref: '#/components/schemas/Hymn'
+        show_translation:
+          type: boolean
+          default: false
     Meeting:
       type: object
       required:
@@ -703,10 +915,16 @@ components:
         last_name:
           type: string
           example: Anderson
-    Verses:
+    Verse:
       type: object
-      description: Set of one or more verses
+      description: A single verse of a hymn
+      required:
+        - hymn_id
+        - number
+        - optional
       properties:
+        hymn_id:
+          $ref: '#/components/schemas/ID'
         number:
           type: integer
         optional:
@@ -732,6 +950,20 @@ components:
       schema:
         type: string
         format: date
+    hymnId:
+      in: path
+      name: HymnID
+      description: Unique identifier for a hymn
+      required: true
+      schema:
+        $ref: '#/components/schemas/ID'
+    language:
+      in: query
+      name: Language
+      description: pass an optional language filter
+      required: false
+      schema:
+        $ref: '#/components/schemas/Language'
     meetingId:
       in: path
       name: MeetingID
@@ -781,6 +1013,13 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/ID'
+    verseId:
+      in: path
+      name: VerseID
+      description: Unique identifier for a Verse
+      required: true
+      schema:
+        $ref: '#/components/schemas/ID'
   responses:
     blankSlide:
       description: A single blank slide
@@ -788,6 +1027,20 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/BlankSlide'
+    hymn:
+      description: A single hymns
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Hymn'
+    hymns:
+      description: A list of hymns
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Hymn'
     lyricsSlide:
       description: A single lyrics slide
       content:
@@ -894,3 +1147,17 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/User'
+    verse:
+      description: A single verse
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Verse'
+    verses:
+      description: List of verses
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Verse'
