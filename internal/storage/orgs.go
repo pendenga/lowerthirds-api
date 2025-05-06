@@ -2,18 +2,13 @@ package storage
 
 import (
 	"context"
-	"fmt"
 	"github.com/google/uuid"
 	"lowerthirdsapi/internal/entities"
 	"lowerthirdsapi/internal/helpers"
 )
 
 func (s lowerThirdsService) CreateOrg(ctx context.Context, o *entities.Organization) error {
-	userIDVal := ctx.Value(helpers.UserIDKey)
-	userID, ok := userIDVal.(uuid.UUID)
-	if !ok {
-		return fmt.Errorf("userID not found or invalid in context")
-	}
+	userID := ctx.Value(helpers.UserIDKey).(string)
 	s.logger.Debug("CreateOrg for userID ", userID)
 
 	// TODO: put some user-level security on this query
@@ -62,11 +57,7 @@ func (s lowerThirdsService) DeleteOrg(ctx context.Context, orgID uuid.UUID) erro
 }
 
 func (s lowerThirdsService) GetMeetingsByOrg(ctx context.Context, orgID uuid.UUID) (*[]entities.Meeting, error) {
-	userIDVal := ctx.Value(helpers.UserIDKey)
-	userID, ok := userIDVal.(uuid.UUID)
-	if !ok {
-		return nil, fmt.Errorf("userID not found or invalid in context")
-	}
+	userID := ctx.Value(helpers.UserIDKey).(string)
 	s.logger.Debug("GetMeetings for userID ", userID)
 
 	var meetings []entities.Meeting
@@ -94,11 +85,7 @@ func (s lowerThirdsService) GetMeetingsByOrg(ctx context.Context, orgID uuid.UUI
 }
 
 func (s lowerThirdsService) GetOrg(ctx context.Context, orgID uuid.UUID) (*entities.Organization, error) {
-	userIDVal := ctx.Value(helpers.UserIDKey)
-	userID, ok := userIDVal.(uuid.UUID)
-	if !ok {
-		return nil, fmt.Errorf("userID not found or invalid in context")
-	}
+	userID := ctx.Value(helpers.UserIDKey).(string)
 	s.logger.Debug("GetOrg for userID ", userID, " orgID ", orgID)
 	var org entities.Organization
 	err := s.MySqlDB.Get(
@@ -123,11 +110,7 @@ func (s lowerThirdsService) GetOrg(ctx context.Context, orgID uuid.UUID) (*entit
 }
 
 func (s lowerThirdsService) GetOrgs(ctx context.Context) (*[]entities.Organization, error) {
-	userIDVal := ctx.Value(helpers.UserIDKey)
-	userID, ok := userIDVal.(uuid.UUID)
-	if !ok {
-		return nil, fmt.Errorf("userID not found or invalid in context")
-	}
+	userID := ctx.Value(helpers.UserIDKey).(string)
 	s.logger.Debug("GetOrgs for userID ", userID)
 
 	var orgs []entities.Organization

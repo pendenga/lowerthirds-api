@@ -6,7 +6,7 @@ import (
 	"lowerthirdsapi/internal/entities"
 )
 
-func (s lowerThirdsService) CreateOrgUser(ctx context.Context, orgID uuid.UUID, userID uuid.UUID) error {
+func (s lowerThirdsService) CreateOrgUser(ctx context.Context, orgID uuid.UUID, userID string) error {
 	s.logger.Debug("CreateOrgUser")
 
 	// TODO: put some user-level security on this query
@@ -23,7 +23,7 @@ func (s lowerThirdsService) CreateOrgUser(ctx context.Context, orgID uuid.UUID, 
 	return nil
 }
 
-func (s lowerThirdsService) DeleteOrgUser(ctx context.Context, orgID uuid.UUID, userID uuid.UUID) error {
+func (s lowerThirdsService) DeleteOrgUser(ctx context.Context, orgID uuid.UUID, userID string) error {
 	s.logger.Debug("DeleteOrg for orgID ", orgID)
 
 	// TODO: put some user level security on this query
@@ -47,7 +47,7 @@ func (s lowerThirdsService) DeleteOrgUser(ctx context.Context, orgID uuid.UUID, 
 	return nil
 }
 
-func (s lowerThirdsService) DeleteOrgsByUser(ctx context.Context, userID uuid.UUID) error {
+func (s lowerThirdsService) DeleteOrgsByUser(ctx context.Context, userID string) error {
 	s.logger.Debug("DeleteOrgs for userID ", userID)
 
 	// TODO: put some user level security on this query
@@ -93,7 +93,7 @@ func (s lowerThirdsService) GetUsersByOrg(ctx context.Context, orgID uuid.UUID) 
 	return &users, nil
 }
 
-func (s lowerThirdsService) GetOrgsByUser(ctx context.Context, userID uuid.UUID) (*[]entities.Organization, error) {
+func (s lowerThirdsService) GetOrgsByUser(ctx context.Context, userID string) (*[]entities.Organization, error) {
 	s.logger.Debug("GetOrgs for userID ", userID)
 
 	var orgs []entities.Organization
@@ -117,7 +117,7 @@ func (s lowerThirdsService) GetOrgsByUser(ctx context.Context, userID uuid.UUID)
 	return &orgs, nil
 }
 
-func (s lowerThirdsService) SetOrgsByUser(ctx context.Context, userID uuid.UUID, orgIDs []uuid.UUID) error {
+func (s lowerThirdsService) SetOrgsByUser(ctx context.Context, userID string, orgIDs []uuid.UUID) error {
 	s.logger.Debug("SetOrgsByUser for userID ", userID, ", orgIDs ", orgIDs)
 
 	err := s.DeleteOrgsByUser(ctx, userID)

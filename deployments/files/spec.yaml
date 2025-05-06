@@ -901,7 +901,7 @@ components:
         - connections
       properties:
         id:
-          $ref: '#/components/schemas/ID'
+          $ref: '#/components/schemas/UserID'
         email:
           type: string
           format: email
@@ -915,6 +915,9 @@ components:
         last_name:
           type: string
           example: Anderson
+    UserID:
+      type: string
+      example: 194bbf601ed54ef5
     Verse:
       type: object
       description: A single verse of a hymn
@@ -1012,7 +1015,7 @@ components:
       description: Unique identifier for a User
       required: true
       schema:
-        $ref: '#/components/schemas/ID'
+        $ref: '#/components/schemas/UserID'
     verseId:
       in: path
       name: VerseID

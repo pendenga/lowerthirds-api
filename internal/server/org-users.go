@@ -34,7 +34,7 @@ func (s *Server) getOrgsByUser() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		ctx := req.Context()
 
-		userID := uuid.MustParse(mux.Vars(req)["UserID"])
+		userID := mux.Vars(req)["UserID"]
 
 		meetings, err := s.lowerThirdsService.GetOrgsByUser(ctx, userID)
 		if err != nil {
@@ -56,7 +56,7 @@ func (s *Server) setOrgsByUser() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		ctx := req.Context()
 
-		userID := uuid.MustParse(mux.Vars(req)["UserID"])
+		userID := mux.Vars(req)["UserID"]
 
 		var orgIDs []uuid.UUID
 		if err := json.NewDecoder(req.Body).Decode(&orgIDs); err != nil {

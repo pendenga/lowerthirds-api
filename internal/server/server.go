@@ -13,7 +13,7 @@ import (
 type Server struct {
 	*http.Server
 	DB                 *sqlx.DB
-	router             *mux.Router
+	Router             *mux.Router
 	lowerThirdsService storage.LowerThirdsService
 	Logger             *logrus.Entry
 }
@@ -33,7 +33,7 @@ func New(cfg *config.Config, db *sqlx.DB, lowerThirdsService storage.LowerThirds
 		},
 		DB:                 db,
 		lowerThirdsService: lowerThirdsService,
-		router:             router,
+		Router:             router,
 		Logger:             log,
 	}
 	server.Route()

@@ -2,7 +2,6 @@ package storage
 
 import (
 	"context"
-	"fmt"
 	"github.com/google/uuid"
 	"lowerthirdsapi/internal/entities"
 	"lowerthirdsapi/internal/helpers"
@@ -10,11 +9,7 @@ import (
 )
 
 func (s lowerThirdsService) CreateSlide(ctx context.Context, slide entities.Slide) error {
-	userIDVal := ctx.Value(helpers.UserIDKey)
-	userID, ok := userIDVal.(uuid.UUID)
-	if !ok {
-		return fmt.Errorf("userID not found or invalid in context")
-	}
+	userID := ctx.Value(helpers.UserIDKey).(string)
 	s.logger.Debug("CreateSlides for userID ", userID)
 
 	// Each type of slide handled separately
@@ -74,11 +69,7 @@ func (s lowerThirdsService) CreateSlide(ctx context.Context, slide entities.Slid
 }
 
 func (s lowerThirdsService) DeleteSlide(ctx context.Context, slideID uuid.UUID) error {
-	userIDVal := ctx.Value(helpers.UserIDKey)
-	userID, ok := userIDVal.(uuid.UUID)
-	if !ok {
-		return fmt.Errorf("userID not found or invalid in context")
-	}
+	userID := ctx.Value(helpers.UserIDKey).(string)
 	s.logger.Debug("DeleteSlides for userID ", userID)
 
 	var totalAffectedRows int64 = 0
@@ -121,11 +112,7 @@ func (s lowerThirdsService) DeleteSlide(ctx context.Context, slideID uuid.UUID) 
 }
 
 func (s lowerThirdsService) GetSlide(ctx context.Context, slideID uuid.UUID) (entities.Slide, error) {
-	userIDVal := ctx.Value(helpers.UserIDKey)
-	userID, ok := userIDVal.(uuid.UUID)
-	if !ok {
-		return nil, fmt.Errorf("userID not found or invalid in context")
-	}
+	userID := ctx.Value(helpers.UserIDKey).(string)
 	s.logger.Debug("GetSlides for userID ", userID)
 
 	// Query each type of slide separately
@@ -173,11 +160,7 @@ func (s lowerThirdsService) GetSlide(ctx context.Context, slideID uuid.UUID) (en
 }
 
 func (s lowerThirdsService) GetSlides(ctx context.Context) (*[]entities.Slide, error) {
-	userIDVal := ctx.Value(helpers.UserIDKey)
-	userID, ok := userIDVal.(uuid.UUID)
-	if !ok {
-		return nil, fmt.Errorf("userID not found or invalid in context")
-	}
+	userID := ctx.Value(helpers.UserIDKey).(string)
 	s.logger.Debug("GetSlides for userID ", userID)
 
 	// Query each type of slide separately
@@ -234,11 +217,7 @@ func (s lowerThirdsService) GetSlides(ctx context.Context) (*[]entities.Slide, e
 }
 
 func (s lowerThirdsService) GetSlidesByMeeting(ctx context.Context, meetingID uuid.UUID) (*[]entities.Slide, error) {
-	userIDVal := ctx.Value(helpers.UserIDKey)
-	userID, ok := userIDVal.(uuid.UUID)
-	if !ok {
-		return nil, fmt.Errorf("userID not found or invalid in context")
-	}
+	userID := ctx.Value(helpers.UserIDKey).(string)
 	s.logger.Debug("GetSlidesByMeeting for userID ", userID, ", meetingID ", meetingID)
 
 	// Query each type of slide separately
@@ -295,11 +274,7 @@ func (s lowerThirdsService) GetSlidesByMeeting(ctx context.Context, meetingID uu
 }
 
 func (s lowerThirdsService) UpdateSlide(ctx context.Context, slideID uuid.UUID, slide entities.Slide) error {
-	userIDVal := ctx.Value(helpers.UserIDKey)
-	userID, ok := userIDVal.(uuid.UUID)
-	if !ok {
-		return fmt.Errorf("userID not found or invalid in context")
-	}
+	userID := ctx.Value(helpers.UserIDKey).(string)
 	s.logger.Debug("UpdateSlides for userID ", userID)
 
 	// TODO: somehow check that the ID being used matches up with an existing record of the same type.

@@ -32,7 +32,7 @@ func (s lowerThirdsService) createBlankSlide(d *entities.BlankSlide) error {
 	return nil
 }
 
-func (s lowerThirdsService) deleteBlankSlide(userID uuid.UUID, slideID uuid.UUID) (int64, error) {
+func (s lowerThirdsService) deleteBlankSlide(userID string, slideID uuid.UUID) (int64, error) {
 	s.logger.Debug("deleteBlankSlide for userID ", userID)
 
 	// TODO: put some user level security on this query
@@ -48,7 +48,7 @@ func (s lowerThirdsService) deleteBlankSlide(userID uuid.UUID, slideID uuid.UUID
 	return affectedRows, nil
 }
 
-func (s lowerThirdsService) getBlankSlideByID(userID uuid.UUID, slideID uuid.UUID) (*entities.BlankSlide, error) {
+func (s lowerThirdsService) getBlankSlideByID(userID string, slideID uuid.UUID) (*entities.BlankSlide, error) {
 	s.logger.Debug("getBlankSlideByID for userID ", userID, ", slideID ", slideID)
 	var blankSlide entities.BlankSlide
 	err := s.MySqlDB.Get(
@@ -82,7 +82,7 @@ func (s lowerThirdsService) getBlankSlideByID(userID uuid.UUID, slideID uuid.UUI
 	return &blankSlide, nil
 }
 
-func (s lowerThirdsService) getBlankSlidesByMeeting(userID uuid.UUID, meetingID uuid.UUID) ([]entities.BlankSlide, error) {
+func (s lowerThirdsService) getBlankSlidesByMeeting(userID string, meetingID uuid.UUID) ([]entities.BlankSlide, error) {
 	s.logger.Debug("getBlankSlidesByMeeting for userID ", userID, ", meetingID ", meetingID)
 	var blankSlides []entities.BlankSlide
 	err := s.MySqlDB.Select(
@@ -113,7 +113,7 @@ func (s lowerThirdsService) getBlankSlidesByMeeting(userID uuid.UUID, meetingID 
 	return blankSlides, nil
 }
 
-func (s lowerThirdsService) getBlankSlidesByUser(userID uuid.UUID) ([]entities.BlankSlide, error) {
+func (s lowerThirdsService) getBlankSlidesByUser(userID string) ([]entities.BlankSlide, error) {
 	s.logger.Debug("getBlankSlidesByUser for userID ", userID)
 	var blankSlides []entities.BlankSlide
 	err := s.MySqlDB.Select(

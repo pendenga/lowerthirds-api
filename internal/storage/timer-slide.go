@@ -34,7 +34,7 @@ func (s lowerThirdsService) createTimerSlide(d *entities.TimerSlide) error {
 	return nil
 }
 
-func (s lowerThirdsService) deleteTimerSlide(userID uuid.UUID, slideID uuid.UUID) (int64, error) {
+func (s lowerThirdsService) deleteTimerSlide(userID string, slideID uuid.UUID) (int64, error) {
 	s.logger.Debug("deleteTimerSlide for userID ", userID)
 
 	// TODO: put some user level security on this query
@@ -50,7 +50,7 @@ func (s lowerThirdsService) deleteTimerSlide(userID uuid.UUID, slideID uuid.UUID
 	return affectedRows, nil
 }
 
-func (s lowerThirdsService) getTimerSlideByID(userID uuid.UUID, slideID uuid.UUID) (*entities.TimerSlide, error) {
+func (s lowerThirdsService) getTimerSlideByID(userID string, slideID uuid.UUID) (*entities.TimerSlide, error) {
 	s.logger.Debug("getTimerSlideByID for userID ", userID, ", slideID ", slideID)
 	var timerSlide entities.TimerSlide
 	err := s.MySqlDB.Get(
@@ -84,7 +84,7 @@ func (s lowerThirdsService) getTimerSlideByID(userID uuid.UUID, slideID uuid.UUI
 	return &timerSlide, nil
 }
 
-func (s lowerThirdsService) getTimerSlidesByMeeting(userID uuid.UUID, meetingID uuid.UUID) ([]entities.TimerSlide, error) {
+func (s lowerThirdsService) getTimerSlidesByMeeting(userID string, meetingID uuid.UUID) ([]entities.TimerSlide, error) {
 	s.logger.Debug("getTimerSlidesByMeeting for userID ", userID, ", meetingID ", meetingID)
 	var timerSlides []entities.TimerSlide
 	err := s.MySqlDB.Select(
@@ -115,7 +115,7 @@ func (s lowerThirdsService) getTimerSlidesByMeeting(userID uuid.UUID, meetingID 
 	return timerSlides, nil
 }
 
-func (s lowerThirdsService) getTimerSlidesByUser(userID uuid.UUID) ([]entities.TimerSlide, error) {
+func (s lowerThirdsService) getTimerSlidesByUser(userID string) ([]entities.TimerSlide, error) {
 	s.logger.Debug("getTimerSlidesByUser for userID ", userID)
 	var timerSlides []entities.TimerSlide
 	err := s.MySqlDB.Select(

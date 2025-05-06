@@ -36,7 +36,7 @@ func (s lowerThirdsService) createLyricsSlide(d *entities.LyricsSlide) error {
 	return nil
 }
 
-func (s lowerThirdsService) deleteLyricsSlide(userID uuid.UUID, slideID uuid.UUID) (int64, error) {
+func (s lowerThirdsService) deleteLyricsSlide(userID string, slideID uuid.UUID) (int64, error) {
 	s.logger.Debug("deleteLyricsSlide for userID ", userID)
 
 	// TODO: put some user level security on this query
@@ -52,7 +52,7 @@ func (s lowerThirdsService) deleteLyricsSlide(userID uuid.UUID, slideID uuid.UUI
 	return affectedRows, nil
 }
 
-func (s lowerThirdsService) getLyricsSlideByID(userID uuid.UUID, slideID uuid.UUID) (*entities.LyricsSlide, error) {
+func (s lowerThirdsService) getLyricsSlideByID(userID string, slideID uuid.UUID) (*entities.LyricsSlide, error) {
 	s.logger.Debug("getLyricsSlideByID for userID ", userID, ", slideID ", slideID)
 	var lyricsSlide entities.LyricsSlide
 	err := s.MySqlDB.Get(
@@ -86,7 +86,7 @@ func (s lowerThirdsService) getLyricsSlideByID(userID uuid.UUID, slideID uuid.UU
 	return &lyricsSlide, nil
 }
 
-func (s lowerThirdsService) getLyricsSlidesByMeeting(userID uuid.UUID, meetingID uuid.UUID) ([]entities.LyricsSlide, error) {
+func (s lowerThirdsService) getLyricsSlidesByMeeting(userID string, meetingID uuid.UUID) ([]entities.LyricsSlide, error) {
 	s.logger.Debug("getLyricsSlidesByMeeting for userID ", userID, ", meetingID ", meetingID)
 	var lyricsSlides []entities.LyricsSlide
 	err := s.MySqlDB.Select(
@@ -117,7 +117,7 @@ func (s lowerThirdsService) getLyricsSlidesByMeeting(userID uuid.UUID, meetingID
 	return lyricsSlides, nil
 }
 
-func (s lowerThirdsService) getLyricsSlidesByUser(userID uuid.UUID) ([]entities.LyricsSlide, error) {
+func (s lowerThirdsService) getLyricsSlidesByUser(userID string) ([]entities.LyricsSlide, error) {
 	s.logger.Debug("getLyricsSlidesByUser for userID ", userID)
 	var lyricsSlides []entities.LyricsSlide
 	err := s.MySqlDB.Select(

@@ -36,7 +36,7 @@ func (s lowerThirdsService) createMessageSlide(d *entities.MessageSlide) error {
 	return nil
 }
 
-func (s lowerThirdsService) deleteMessageSlide(userID uuid.UUID, slideID uuid.UUID) (int64, error) {
+func (s lowerThirdsService) deleteMessageSlide(userID string, slideID uuid.UUID) (int64, error) {
 	s.logger.Debug("deleteMessageSlide for userID ", userID)
 
 	// TODO: put some user level security on this query
@@ -52,7 +52,7 @@ func (s lowerThirdsService) deleteMessageSlide(userID uuid.UUID, slideID uuid.UU
 	return affectedRows, nil
 }
 
-func (s lowerThirdsService) getMessageSlideByID(userID uuid.UUID, slideID uuid.UUID) (*entities.MessageSlide, error) {
+func (s lowerThirdsService) getMessageSlideByID(userID string, slideID uuid.UUID) (*entities.MessageSlide, error) {
 	s.logger.Debug("getMessageSlideByID for userID ", userID, ", slideID ", slideID)
 	var messageSlide entities.MessageSlide
 	err := s.MySqlDB.Get(
@@ -86,7 +86,7 @@ func (s lowerThirdsService) getMessageSlideByID(userID uuid.UUID, slideID uuid.U
 	return &messageSlide, nil
 }
 
-func (s lowerThirdsService) getMessageSlidesByMeeting(userID uuid.UUID, meetingID uuid.UUID) ([]entities.MessageSlide, error) {
+func (s lowerThirdsService) getMessageSlidesByMeeting(userID string, meetingID uuid.UUID) ([]entities.MessageSlide, error) {
 	s.logger.Debug("getMessageSlidesByMeeting for userID ", userID, ", meetingID ", meetingID)
 	var messageSlides []entities.MessageSlide
 	err := s.MySqlDB.Select(
@@ -117,7 +117,7 @@ func (s lowerThirdsService) getMessageSlidesByMeeting(userID uuid.UUID, meetingI
 	return messageSlides, nil
 }
 
-func (s lowerThirdsService) getMessageSlidesByUser(userID uuid.UUID) ([]entities.MessageSlide, error) {
+func (s lowerThirdsService) getMessageSlidesByUser(userID string) ([]entities.MessageSlide, error) {
 	s.logger.Debug("getMessageSlidesByUser for userID ", userID)
 	var messageSlides []entities.MessageSlide
 	err := s.MySqlDB.Select(

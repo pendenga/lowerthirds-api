@@ -2,7 +2,6 @@ package storage
 
 import (
 	"context"
-	"fmt"
 	"github.com/google/uuid"
 	"lowerthirdsapi/internal/entities"
 	"lowerthirdsapi/internal/helpers"
@@ -54,11 +53,7 @@ func (s lowerThirdsService) DeleteMeeting(ctx context.Context, meetingID uuid.UU
 }
 
 func (s lowerThirdsService) GetMeeting(ctx context.Context, meetingID uuid.UUID) (*entities.Meeting, error) {
-	userIDVal := ctx.Value(helpers.UserIDKey)
-	userID, ok := userIDVal.(uuid.UUID)
-	if !ok {
-		return nil, fmt.Errorf("userID not found or invalid in context")
-	}
+	userID := ctx.Value(helpers.UserIDKey).(string)
 	s.logger.Debug("GetMeeting for userID ", userID, " meetingID ", meetingID)
 	var meeting entities.Meeting
 	err := s.MySqlDB.Get(
@@ -86,11 +81,7 @@ func (s lowerThirdsService) GetMeeting(ctx context.Context, meetingID uuid.UUID)
 }
 
 func (s lowerThirdsService) GetMeetings(ctx context.Context) (*[]entities.Meeting, error) {
-	userIDVal := ctx.Value(helpers.UserIDKey)
-	userID, ok := userIDVal.(uuid.UUID)
-	if !ok {
-		return nil, fmt.Errorf("userID not found or invalid in context")
-	}
+	userID := ctx.Value(helpers.UserIDKey).(string)
 	s.logger.Debug("GetMeetings for userID ", userID)
 
 	var meetings []entities.Meeting
