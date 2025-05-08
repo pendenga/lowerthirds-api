@@ -56,16 +56,16 @@ type BlankSlide struct {
 }
 
 type LyricsSlide struct {
-	LyricsSlideID   uuid.UUID     `db:"id" json:"id"`
-	MeetingID       uuid.UUID     `db:"meeting_id" json:"meeting_id"`
-	SlideType       string        `db:"slide_type" json:"slide_type"`
-	SlideOrder      int           `db:"slide_order" json:"slide_order"`
-	MeetingRole     string        `db:"meeting_role" json:"meeting_role"`
-	HymnID          uuid.NullUUID `db:"hymn_id" json:"hymn_id"`
-	ShowTranslation bool          `db:"show_translation" json:"show_translation"`
-	DeletedDT       null.Time     `db:"deleted_dt" json:"deleted_dt"`
-	InsertedDT      time.Time     `db:"inserted_dt" json:"inserted_dt"`
-	UpdatedDT       time.Time     `db:"updated_dt" json:"updated_dt"`
+	LyricsSlideID   uuid.UUID `db:"id" json:"id"`
+	MeetingID       uuid.UUID `db:"meeting_id" json:"meeting_id"`
+	SlideType       string    `db:"slide_type" json:"slide_type"`
+	SlideOrder      int       `db:"slide_order" json:"slide_order"`
+	MeetingRole     string    `db:"meeting_role" json:"meeting_role"`
+	HymnID          string    `db:"hymn_id" json:"hymn_id"`
+	ShowTranslation bool      `db:"show_translation" json:"show_translation"`
+	DeletedDT       null.Time `db:"deleted_dt" json:"deleted_dt"`
+	InsertedDT      time.Time `db:"inserted_dt" json:"inserted_dt"`
+	UpdatedDT       time.Time `db:"updated_dt" json:"updated_dt"`
 }
 
 type MessageSlide struct {
