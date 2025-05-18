@@ -13,7 +13,7 @@ tags:
     description: Details about individual meetings
   - name: Orgs
     description: Details about orgs
-  - name: Slides
+  - name: Items
     description: Details about orgs
   - name: Users
     description: Manage users
@@ -109,20 +109,20 @@ paths:
           description: You did not supply valid Authorization. The response will be empty.
         '404':
           description: The record doesn’t exist. The response will be empty.
-  /meetings/{MeetingID}/slides:
+  /meetings/{MeetingID}/items:
     get:
       tags:
         - Meetings
-      summary: List of slides for a meeting
-      description: List of slides for a meeting
-      operationId: getMeetingSlides
+      summary: List of items for a meeting
+      description: List of items for a meeting
+      operationId: getMeetingItems
       parameters:
         - $ref: "#/components/parameters/meetingId"
         - $ref: "#/components/parameters/page"
         - $ref: "#/components/parameters/pageSize"
       responses:
         '201':
-          $ref: '#/components/responses/slides'
+          $ref: '#/components/responses/items'
         '400':
           description: 'invalid input, object invalid'
   /orgs:
@@ -249,13 +249,89 @@ paths:
           $ref: '#/components/responses/users'
         '400':
           description: 'invalid input, object invalid'
-  /slides:
+  /orgusers:
     get:
       tags:
-        - Slides
-      summary: List of slides
-      description: List of slides
-      operationId: getSlides
+        - OrgUsers
+      summary: Get organization-to-user map
+      description: Returns a mapping of organization IDs to arrays of user IDs
+      operationId: getOrgUsers
+      responses:
+        '200':
+          description: A mapping of org IDs to arrays of user IDs
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+    post:
+      tags:
+        - OrgUsers
+      summary: Assign user to organization
+      description: Creates a mapping between a user and an organization
+      operationId: postOrgUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id, organization_id]
+              properties:
+                user_id:
+                  type: string
+                organization_id:
+                  type: string
+      responses:
+        '204':
+          description: Assignment successful
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+
+    delete:
+      tags:
+        - OrgUsers
+      summary: Unassign user from organization
+      description: Deletes a mapping between a user and an organization
+      operationId: deleteOrgUser
+      parameters:
+        - in: query
+          name: user_id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: organization_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Unassignment successful
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+  /items:
+    get:
+      tags:
+        - Items
+      summary: List of items
+      description: List of items
+      operationId: getItems
       parameters:
         - $ref: "#/components/parameters/meetingId"
         - $ref: "#/components/parameters/orgId"
@@ -265,22 +341,22 @@ paths:
         - $ref: "#/components/parameters/pageSize"
       responses:
         '201':
-          $ref: '#/components/responses/slides'
+          $ref: '#/components/responses/items'
         '400':
           description: 'invalid input, object invalid'
     post:
       tags:
-        - Slides
-      summary: Creates a slide
-      description: Creates a slide
-      operationId: postSlide
+        - Items
+      summary: Creates an item
+      description: Creates an item
+      operationId: postItem
       responses:
         '201':
-          description: slide created
+          description: item created
         '400':
-          description: 'invalid input, slide invalid'
+          description: 'invalid input, item invalid'
         '409':
-          description: an existing slide already exists
+          description: an existing item already exists
       parameters: []
       requestBody:
         description: Meeting to add
@@ -288,23 +364,23 @@ paths:
           application/json:
             schema:
               oneOf:
-                - $ref: '#/components/schemas/BlankSlide'
-                - $ref: '#/components/schemas/LyricsSlide'
-                - $ref: '#/components/schemas/MessageSlide'
-                - $ref: '#/components/schemas/SpeakerSlide'
-                - $ref: '#/components/schemas/TimerSlide'
-  /slides/{SlideID}:
+                - $ref: '#/components/schemas/BlankItem'
+                - $ref: '#/components/schemas/LyricsItem'
+                - $ref: '#/components/schemas/MessageItem'
+                - $ref: '#/components/schemas/SpeakerItem'
+                - $ref: '#/components/schemas/TimerItem'
+  /items/{ItemID}:
     get:
       tags:
-        - Slides
-      summary: Get slide
-      description: Get slide
+        - Items
+      summary: Get item
+      description: Get item
       operationId: getSlid
       parameters:
-        - $ref: "#/components/parameters/slideId"
+        - $ref: "#/components/parameters/itemId"
       responses:
         '200':
-          $ref: '#/components/responses/slide'
+          $ref: '#/components/responses/item'
         '401':
           description: |
             You did not supply valid Authorization. The response will be empty.
@@ -312,26 +388,26 @@ paths:
           description: The record doesn’t exist. The response will be empty.
     put:
       tags:
-        - Slides
-      summary: Update an existing slide
-      description: Update an existing slide
-      operationId: updateSlide
+        - Items
+      summary: Update an existing item
+      description: Update an existing item
+      operationId: updateItem
       parameters:
-        - $ref: "#/components/parameters/slideId"
+        - $ref: "#/components/parameters/itemId"
       requestBody:
-        description: Slide object
+        description: Item object
         content:
           application/json:
             schema:
               oneOf:
-                - $ref: '#/components/schemas/BlankSlide'
-                - $ref: '#/components/schemas/LyricsSlide'
-                - $ref: '#/components/schemas/MessageSlide'
-                - $ref: '#/components/schemas/SpeakerSlide'
-                - $ref: '#/components/schemas/TimerSlide'
+                - $ref: '#/components/schemas/BlankItem'
+                - $ref: '#/components/schemas/LyricsItem'
+                - $ref: '#/components/schemas/MessageItem'
+                - $ref: '#/components/schemas/SpeakerItem'
+                - $ref: '#/components/schemas/TimerItem'
       responses:
         '200':
-          $ref: '#/components/responses/slide'
+          $ref: '#/components/responses/item'
         '401':
           description: |
             You did not supply valid Authorization. The response will be empty.
@@ -339,12 +415,12 @@ paths:
           description: The record doesn’t exist. The response will be empty.
     delete:
       tags:
-        - Slides
-      summary: Delete a slide
-      description: Delete a slide
-      operationId: deleteSlide
+        - Items
+      summary: Delete an item
+      description: Delete an item
+      operationId: deleteItem
       parameters:
-        - $ref: "#/components/parameters/slideId"
+        - $ref: "#/components/parameters/itemId"
       responses:
         '200':
           description: The request was successful. The response will be empty.
@@ -494,9 +570,9 @@ paths:
           description: 'invalid input, orgs invalid'
 components:
   schemas:
-    BlankSlide:
+    BlankItem:
       type: object
-      description: Blank slide definition
+      description: Blank item definition
       required:
         - id
         - type
@@ -506,7 +582,7 @@ components:
         id:
           $ref: '#/components/schemas/ID'
         type:
-          $ref: '#/components/schemas/SlideType'
+          $ref: '#/components/schemas/ItemType'
         order:
           $ref: '#/components/schemas/Order'
         meeting_role:
@@ -537,9 +613,9 @@ components:
       enum:
         - eng
         - spa
-    LyricsSlide:
+    LyricsItem:
       type: object
-      description: Lyrics slide definition
+      description: Lyrics item definition
       required:
         - id
         - type
@@ -550,7 +626,7 @@ components:
         id:
           $ref: '#/components/schemas/ID'
         type:
-          $ref: '#/components/schemas/SlideType'
+          $ref: '#/components/schemas/ItemType'
         order:
           $ref: '#/components/schemas/Order'
         meeting_role:
@@ -586,9 +662,9 @@ components:
     Message:
       type: string
       example: The broadcast has concluded
-    MessageSlide:
+    MessageItem:
       type: object
-      description: Blank slide definition
+      description: Blank item definition
       required:
         - id
         - type
@@ -599,7 +675,7 @@ components:
         id:
           $ref: '#/components/schemas/ID'
         type:
-          $ref: '#/components/schemas/SlideType'
+          $ref: '#/components/schemas/ItemType'
         order:
           $ref: '#/components/schemas/Order'
         meeting_role:
@@ -624,9 +700,9 @@ components:
         name:
           type: string
           example: Mesa Flatiron Stake
-    SlideType:
-      title: Slide Type
-      description: Slide Type
+    ItemType:
+      title: Item Type
+      description: Item Type
       type: string
       enum:
         - blank
@@ -634,9 +710,9 @@ components:
         - speaker
         - lyrics
         - timer
-    SpeakerSlide:
+    SpeakerItem:
       type: object
-      description: Speaker slide definition
+      description: Speaker item definition
       required:
         - id
         - type
@@ -648,7 +724,7 @@ components:
         id:
           $ref: '#/components/schemas/ID'
         type:
-          $ref: '#/components/schemas/SlideType'
+          $ref: '#/components/schemas/ItemType'
         order:
           $ref: '#/components/schemas/Order'
         meeting_role:
@@ -657,9 +733,9 @@ components:
           $ref: '#/components/schemas/Name'
         title:
           $ref: '#/components/schemas/Title'
-    TimerSlide:
+    TimerItem:
       type: object
-      description: Blank slide definition
+      description: Blank item definition
       required:
         - id
         - type
@@ -671,7 +747,7 @@ components:
         id:
           $ref: '#/components/schemas/ID'
         type:
-          $ref: '#/components/schemas/SlideType'
+          $ref: '#/components/schemas/ItemType'
         order:
           $ref: '#/components/schemas/Order'
         meeting_role:
@@ -775,10 +851,10 @@ components:
         minimum: 0
         maximum: 1000
         default: 50
-    slideId:
+    itemId:
       in: path
-      name: SlideID
-      description: Unique identifier for a slide
+      name: ItemID
+      description: Unique identifier for an item
       required: true
       schema:
         $ref: '#/components/schemas/ID'
@@ -790,24 +866,24 @@ components:
       schema:
         $ref: '#/components/schemas/UserID'
   responses:
-    blankSlide:
-      description: A single blank slide
+    blankItem:
+      description: A single blank item
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/BlankSlide'
-    lyricsSlide:
-      description: A single lyrics slide
+            $ref: '#/components/schemas/BlankItem'
+    lyricsItem:
+      description: A single lyrics item
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/LyricsSlide'
-    messageSlide:
-      description: A single message slide
+            $ref: '#/components/schemas/LyricsItem'
+    messageItem:
+      description: A single message item
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/MessageSlide'
+            $ref: '#/components/schemas/MessageItem'
     meeting:
       description: A single meeting
       content:
@@ -836,58 +912,58 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/Org'
-    slide:
-      description: List of slides
+    item:
+      description: List of items
       content:
         application/json:
           schema:
             oneOf:
-              - $ref: '#/components/schemas/BlankSlide'
-              - $ref: '#/components/schemas/LyricsSlide'
-              - $ref: '#/components/schemas/MessageSlide'
-              - $ref: '#/components/schemas/SpeakerSlide'
-              - $ref: '#/components/schemas/TimerSlide'
+              - $ref: '#/components/schemas/BlankItem'
+              - $ref: '#/components/schemas/LyricsItem'
+              - $ref: '#/components/schemas/MessageItem'
+              - $ref: '#/components/schemas/SpeakerItem'
+              - $ref: '#/components/schemas/TimerItem'
             discriminator:
-              propertyName: SlideType
+              propertyName: ItemType
               mapping:
-                blank: '#/components/schemas/BlankSlide'
-                lyrics: '#/components/schemas/LyricsSlide'
-                message: '#/components/schemas/MessageSlide'
-                speaker: '#/components/schemas/SpeakerSlide'
-                timer: '#/components/schemas/TimerSlide'
-    slides:
-      description: List of slides
+                blank: '#/components/schemas/BlankItem'
+                lyrics: '#/components/schemas/LyricsItem'
+                message: '#/components/schemas/MessageItem'
+                speaker: '#/components/schemas/SpeakerItem'
+                timer: '#/components/schemas/TimerItem'
+    items:
+      description: List of items
       content:
         application/json:
           schema:
             type: array
             items:
               oneOf:
-                - $ref: '#/components/schemas/BlankSlide'
-                - $ref: '#/components/schemas/LyricsSlide'
-                - $ref: '#/components/schemas/MessageSlide'
-                - $ref: '#/components/schemas/SpeakerSlide'
-                - $ref: '#/components/schemas/TimerSlide'
+                - $ref: '#/components/schemas/BlankItem'
+                - $ref: '#/components/schemas/LyricsItem'
+                - $ref: '#/components/schemas/MessageItem'
+                - $ref: '#/components/schemas/SpeakerItem'
+                - $ref: '#/components/schemas/TimerItem'
             discriminator:
-              propertyName: SlideType
+              propertyName: ItemType
               mapping:
-                blank: '#/components/schemas/BlankSlide'
-                lyrics: '#/components/schemas/LyricsSlide'
-                message: '#/components/schemas/MessageSlide'
-                speaker: '#/components/schemas/SpeakerSlide'
-                timer: '#/components/schemas/TimerSlide'
-    speakerSlide:
-      description: A single speaker slide
+                blank: '#/components/schemas/BlankItem'
+                lyrics: '#/components/schemas/LyricsItem'
+                message: '#/components/schemas/MessageItem'
+                speaker: '#/components/schemas/SpeakerItem'
+                timer: '#/components/schemas/TimerItem'
+    speakerItem:
+      description: A single speaker item
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/SpeakerSlide'
-    timerSlide:
-      description: A single timer slide
+            $ref: '#/components/schemas/SpeakerItem'
+    timerItem:
+      description: A single timer item
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/TimerSlide'
+            $ref: '#/components/schemas/TimerItem'
     user:
       description: A single user
       content:

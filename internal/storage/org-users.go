@@ -4,9 +4,10 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"lowerthirdsapi/internal/entities"
+	"lowerthirdsapi/internal/helpers"
 )
 
-func (s lowerThirdsService) CreateOrgUser(ctx context.Context, orgID uuid.UUID, userID string) error {
+func (s lowerThirdsService) CreateOrgUser(ctx context.Context, orgID uuid.UUID, userID uuid.UUID) error {
 	s.logger.Debug("CreateOrgUser")
 
 	// TODO: put some user-level security on this query
@@ -23,8 +24,8 @@ func (s lowerThirdsService) CreateOrgUser(ctx context.Context, orgID uuid.UUID, 
 	return nil
 }
 
-func (s lowerThirdsService) DeleteOrgUser(ctx context.Context, orgID uuid.UUID, userID string) error {
-	s.logger.Debug("DeleteOrg for orgID ", orgID)
+func (s lowerThirdsService) DeleteOrgUser(ctx context.Context, orgID uuid.UUID, userID uuid.UUID) error {
+	s.logger.Debug("DeleteOrg for orgID ", orgID, " userID ", userID)
 
 	// TODO: put some user level security on this query
 	result, err := s.MySqlDB.ExecContext(ctx, `
@@ -47,7 +48,7 @@ func (s lowerThirdsService) DeleteOrgUser(ctx context.Context, orgID uuid.UUID, 
 	return nil
 }
 
-func (s lowerThirdsService) DeleteOrgsByUser(ctx context.Context, userID string) error {
+func (s lowerThirdsService) DeleteOrgsByUser(ctx context.Context, userID uuid.UUID) error {
 	s.logger.Debug("DeleteOrgs for userID ", userID)
 
 	// TODO: put some user level security on this query
@@ -67,6 +68,52 @@ func (s lowerThirdsService) DeleteOrgsByUser(ctx context.Context, userID string)
 		s.logger.Info("DeleteOrg affected rows: ", affectedRows)
 	}
 	return nil
+}
+
+func (s lowerThirdsService) GetOrgUsersMap(ctx context.Context) (*[]entities.OrgUserMap, error) {
+	socialID := ctx.Value(helpers.SocialIDKey).(string)
+	s.logger.Debug("GetOrgUsersMap for socialID ", socialID)
+	user, err := s.GetUserBySocialID(ctx, socialID)
+	if err != nil {
+		s.logger.Error("User not found by socialID", err)
+		return nil, err
+	}
+	s.logger.Debug("GetOrgUsersMap for userID ", user.UserID)
+
+	var orgUsers []entities.OrgUser
+	err = s.MySqlDB.Select(
+		&orgUsers,
+		`SELECT ou.org_id, ou.user_id
+        FROM OrgUsers ou
+        INNER JOIN Users u
+          ON u.id = ou.user_id
+          AND u.deleted_dt IS NULL
+        INNER JOIN Organization o
+          ON o.id = ou.org_id
+          AND o.deleted_dt IS NULL
+        WHERE ou.deleted_dt IS NULL
+          AND ou.org_id IN (SELECT org_id FROM OrgUsers WHERE user_id = ?)`,
+		user.UserID,
+	)
+	if err != nil {
+		s.logger.Error(err)
+		return nil, err
+	}
+
+	queryMap := make(map[uuid.UUID][]uuid.UUID)
+	for _, row := range orgUsers {
+		queryMap[row.OrgID] = append(queryMap[row.OrgID], row.UserID)
+	}
+
+	result := make([]entities.OrgUserMap, 0, len(queryMap))
+	for orgID, userIDs := range queryMap {
+		result = append(result, entities.OrgUserMap{
+			OrgID:  orgID,
+			UserID: userIDs,
+		})
+	}
+
+	return &result, nil
 }
 
 func (s lowerThirdsService) GetUsersByOrg(ctx context.Context, orgID uuid.UUID) (*[]entities.User, error) {
@@ -93,7 +140,7 @@ func (s lowerThirdsService) GetUsersByOrg(ctx context.Context, orgID uuid.UUID) 
 	return &users, nil
 }
 
-func (s lowerThirdsService) GetOrgsByUser(ctx context.Context, userID string) (*[]entities.Organization, error) {
+func (s lowerThirdsService) GetOrgsByUser(ctx context.Context, userID uuid.UUID) (*[]entities.Organization, error) {
 	s.logger.Debug("GetOrgs for userID ", userID)
 
 	var orgs []entities.Organization
@@ -117,7 +164,7 @@ func (s lowerThirdsService) GetOrgsByUser(ctx context.Context, userID string) (*
 	return &orgs, nil
 }
 
-func (s lowerThirdsService) SetOrgsByUser(ctx context.Context, userID string, orgIDs []uuid.UUID) error {
+func (s lowerThirdsService) SetOrgsByUser(ctx context.Context, userID uuid.UUID, orgIDs []uuid.UUID) error {
 	s.logger.Debug("SetOrgsByUser for userID ", userID, ", orgIDs ", orgIDs)
 
 	err := s.DeleteOrgsByUser(ctx, userID)

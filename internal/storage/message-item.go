@@ -7,52 +7,56 @@ import (
 	"lowerthirdsapi/internal/entities"
 )
 
-func (s lowerThirdsService) createBlankSlide(d *entities.BlankSlide) error {
-	s.logger.Debug("createBlankSlide")
+func (s lowerThirdsService) createMessageItem(d *entities.MessageItem) error {
+	s.logger.Debug("createMessageItem")
 
 	// TODO: put some user-level security on this query
 	_, err := s.MySqlDB.Exec(
-		`INSERT INTO BlankSlides (
+		`INSERT INTO MessageItems (
 		  id, 
 		  meeting_id,
 		  meeting_role,
-		  slide_type,
-		  slide_order
-		) VALUES (?, ?, ?, ?, ?)`,
-		d.BlankSlideID,
+		  item_type,
+		  item_order,
+		  primary_text,
+		  secondary_text
+		) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+		d.MessageItemID,
 		d.MeetingID,
 		d.MeetingRole,
-		d.SlideType,
-		d.SlideOrder,
+		d.ItemType,
+		d.ItemOrder,
+		d.PrimaryText,
+		d.SecondaryText,
 	)
 	if err != nil {
-		s.logger.Error("createBlankSlide Error", err)
+		s.logger.Error("createMessageItem Error", err)
 		return err
 	}
 	return nil
 }
 
-func (s lowerThirdsService) deleteBlankSlide(userID string, slideID uuid.UUID) (int64, error) {
-	s.logger.Debug("deleteBlankSlide for userID ", userID)
+func (s lowerThirdsService) deleteMessageItem(userID uuid.UUID, itemID uuid.UUID) (int64, error) {
+	s.logger.Debug("deleteMessageItem for userID ", userID)
 
 	// TODO: put some user level security on this query
 	result, err := s.MySqlDB.Exec(
-		`UPDATE BlankSlides SET deleted_dt = CURRENT_TIMESTAMP WHERE id = ? AND deleted_dt IS NULL`,
-		slideID,
+		`UPDATE MessageItems SET deleted_dt = CURRENT_TIMESTAMP WHERE id = ? AND deleted_dt IS NULL`,
+		itemID,
 	)
 	if err != nil {
-		s.logger.Error("deleteBlankSlide error ", err)
+		s.logger.Error("deleteMessageItem error ", err)
 		return 0, err
 	}
 	affectedRows, _ := result.RowsAffected()
 	return affectedRows, nil
 }
 
-func (s lowerThirdsService) getBlankSlideByID(userID string, slideID uuid.UUID) (*entities.BlankSlide, error) {
-	s.logger.Debug("getBlankSlideByID for userID ", userID, ", slideID ", slideID)
-	var blankSlide entities.BlankSlide
+func (s lowerThirdsService) getMessageItemByID(userID uuid.UUID, itemID uuid.UUID) (*entities.MessageItem, error) {
+	s.logger.Debug("getMessageItemByID for userID ", userID, ", itemID ", itemID)
+	var messageItem entities.MessageItem
 	err := s.MySqlDB.Get(
-		&blankSlide,
+		&messageItem,
 		`SELECT s.*
         FROM OrgUsers ou
         INNER JOIN Users u
@@ -64,13 +68,13 @@ func (s lowerThirdsService) getBlankSlideByID(userID string, slideID uuid.UUID) 
         INNER JOIN Meetings m
           ON m.org_id = ou.org_id
           AND m.deleted_dt IS NULL
-        INNER JOIN BlankSlides s
+        INNER JOIN MessageItems s
           ON s.meeting_id = m.id
 		  AND s.id = ?
 		  AND s.deleted_dt IS NULL
         WHERE ou.user_id = ?
           AND ou.deleted_dt IS NULL`,
-		slideID,
+		itemID,
 		userID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -79,14 +83,14 @@ func (s lowerThirdsService) getBlankSlideByID(userID string, slideID uuid.UUID) 
 		s.logger.Error(err)
 		return nil, err
 	}
-	return &blankSlide, nil
+	return &messageItem, nil
 }
 
-func (s lowerThirdsService) getBlankSlidesByMeeting(userID string, meetingID uuid.UUID) ([]entities.BlankSlide, error) {
-	s.logger.Debug("getBlankSlidesByMeeting for userID ", userID, ", meetingID ", meetingID)
-	var blankSlides []entities.BlankSlide
+func (s lowerThirdsService) getMessageItemsByMeeting(userID uuid.UUID, meetingID uuid.UUID) ([]entities.MessageItem, error) {
+	s.logger.Debug("getMessageItemsByMeeting for userID ", userID, ", meetingID ", meetingID)
+	var messageItems []entities.MessageItem
 	err := s.MySqlDB.Select(
-		&blankSlides,
+		&messageItems,
 		`SELECT s.*
         FROM OrgUsers ou
         INNER JOIN Users u
@@ -99,7 +103,7 @@ func (s lowerThirdsService) getBlankSlidesByMeeting(userID string, meetingID uui
           ON m.org_id = ou.org_id
 		  AND m.id = ?
           AND m.deleted_dt IS NULL
-        INNER JOIN BlankSlides s
+        INNER JOIN MessageItems s
           ON s.meeting_id = m.id
 		  AND s.deleted_dt IS NULL
         WHERE ou.user_id = ?
@@ -110,14 +114,14 @@ func (s lowerThirdsService) getBlankSlidesByMeeting(userID string, meetingID uui
 		s.logger.Error(err)
 		return nil, err
 	}
-	return blankSlides, nil
+	return messageItems, nil
 }
 
-func (s lowerThirdsService) getBlankSlidesByUser(userID string) ([]entities.BlankSlide, error) {
-	s.logger.Debug("getBlankSlidesByUser for userID ", userID)
-	var blankSlides []entities.BlankSlide
+func (s lowerThirdsService) getMessageItemsByUser(userID uuid.UUID) ([]entities.MessageItem, error) {
+	s.logger.Debug("getMessageItemsByUser for userID ", userID)
+	var messageItems []entities.MessageItem
 	err := s.MySqlDB.Select(
-		&blankSlides,
+		&messageItems,
 		`SELECT s.*
         FROM OrgUsers ou
         INNER JOIN Users u
@@ -129,7 +133,7 @@ func (s lowerThirdsService) getBlankSlidesByUser(userID string) ([]entities.Blan
         INNER JOIN Meetings m
           ON m.org_id = ou.org_id
           AND m.deleted_dt IS NULL
-        INNER JOIN BlankSlides s
+        INNER JOIN MessageItems s
           ON s.meeting_id = m.id
 		  AND s.deleted_dt IS NULL
         WHERE ou.user_id = ?
@@ -139,35 +143,39 @@ func (s lowerThirdsService) getBlankSlidesByUser(userID string) ([]entities.Blan
 		s.logger.Error(err)
 		return nil, err
 	}
-	return blankSlides, nil
+	return messageItems, nil
 }
 
-func (s lowerThirdsService) updateBlankSlide(blankSlideID uuid.UUID, d *entities.BlankSlide) error {
-	s.logger.Debug("updateBlankSlide")
+func (s lowerThirdsService) updateMessageItem(messageItemID uuid.UUID, d *entities.MessageItem) error {
+	s.logger.Debug("updateMessageItem")
 
 	// TODO: put some user level security on this query
 	result, err := s.MySqlDB.Exec(
-		`UPDATE BlankSlides SET
+		`UPDATE MessageItems SET
 		  id = ?,
 		  meeting_id = ?,
 		  meeting_role = ?,
-		  slide_type = ?,
-		  slide_order = ?
+		  item_type = ?,
+		  item_order = ?,
+		  primary_text = ?,
+		  secondary_text = ?
         WHERE id = ?`,
-		d.BlankSlideID,
+		d.MessageItemID,
 		d.MeetingID,
 		d.MeetingRole,
-		d.SlideType,
-		d.SlideOrder,
-		blankSlideID,
+		d.ItemType,
+		d.ItemOrder,
+		d.PrimaryText,
+		d.SecondaryText,
+		messageItemID,
 	)
 	if err != nil {
-		s.logger.Error("updateBlankSlide Error", err)
+		s.logger.Error("updateMessageItem Error", err)
 		return err
 	}
 	affectedRows, err := result.RowsAffected()
 	if err == nil {
-		s.logger.Info("updateBlankSlide affected rows: ", affectedRows)
+		s.logger.Info("updateMessageItem affected rows: ", affectedRows)
 	}
 	return nil
 }

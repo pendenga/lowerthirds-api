@@ -67,13 +67,13 @@ func (s *Server) getMeeting() http.Handler {
 	})
 }
 
-func (s *Server) getMeetingSlides() http.Handler {
+func (s *Server) getMeetingItems() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		ctx := req.Context()
 
 		meetingID := uuid.MustParse(mux.Vars(req)["MeetingID"])
 
-		meetings, err := s.lowerThirdsService.GetSlidesByMeeting(ctx, meetingID)
+		meetings, err := s.lowerThirdsService.GetItemsByMeeting(ctx, meetingID)
 		if err != nil {
 			s.Logger.Error(err)
 			helpers.WriteError(ctx, err, w)

@@ -7,54 +7,52 @@ import (
 	"lowerthirdsapi/internal/entities"
 )
 
-func (s lowerThirdsService) createTimerSlide(d *entities.TimerSlide) error {
-	s.logger.Debug("createTimerSlide")
+func (s lowerThirdsService) createBlankItem(d *entities.BlankItem) error {
+	s.logger.Debug("createBlankItem")
 
 	// TODO: put some user-level security on this query
 	_, err := s.MySqlDB.Exec(
-		`INSERT INTO TimerSlides (
+		`INSERT INTO BlankItems (
 		  id, 
 		  meeting_id,
 		  meeting_role,
-		  slide_type,
-		  slide_order,
-		  show_meeting_details
-		) VALUES (?, ?, ?, ?, ?, ?)`,
-		d.TimerSlideID,
+		  item_type,
+		  item_order
+		) VALUES (?, ?, ?, ?, ?)`,
+		d.BlankItemID,
 		d.MeetingID,
 		d.MeetingRole,
-		d.SlideType,
-		d.SlideOrder,
-		d.ShowMeetingDetails,
+		d.ItemType,
+		d.ItemOrder,
 	)
 	if err != nil {
-		s.logger.Error("createTimerSlide Error", err)
+		s.logger.Error("createBlankItem Error", err)
 		return err
 	}
 	return nil
 }
 
-func (s lowerThirdsService) deleteTimerSlide(userID string, slideID uuid.UUID) (int64, error) {
-	s.logger.Debug("deleteTimerSlide for userID ", userID)
+func (s lowerThirdsService) deleteBlankItem(userID uuid.UUID, itemID uuid.UUID) (int64, error) {
+	s.logger.Debug("deleteBlankItem for userID ", userID)
 
 	// TODO: put some user level security on this query
 	result, err := s.MySqlDB.Exec(
-		`UPDATE TimerSlides SET deleted_dt = CURRENT_TIMESTAMP WHERE id = ? AND deleted_dt IS NULL`,
-		slideID,
+		`UPDATE BlankItems SET deleted_dt = CURRENT_TIMESTAMP WHERE id = ? AND deleted_dt IS NULL`,
+		itemID,
 	)
 	if err != nil {
-		s.logger.Error("deleteTimerSlide error ", err)
+		s.logger.Error("deleteBlankItem error ", err)
 		return 0, err
 	}
 	affectedRows, _ := result.RowsAffected()
 	return affectedRows, nil
 }
 
-func (s lowerThirdsService) getTimerSlideByID(userID string, slideID uuid.UUID) (*entities.TimerSlide, error) {
-	s.logger.Debug("getTimerSlideByID for userID ", userID, ", slideID ", slideID)
-	var timerSlide entities.TimerSlide
+func (s lowerThirdsService) getBlankItemByID(userID uuid.UUID, itemID uuid.UUID) (*entities.BlankItem, error) {
+	s.logger.Debug("getBlankItemByID for userID ", userID, ", itemID ", itemID)
+	var blankItem entities.BlankItem
 	err := s.MySqlDB.Get(
-		&timerSlide,
+		&blankItem,
 		`SELECT s.*
         FROM OrgUsers ou
         INNER JOIN Users u
@@ -66,13 +64,13 @@ func (s lowerThirdsService) getTimerSlideByID(userID string, slideID uuid.UUID) 
         INNER JOIN Meetings m
           ON m.org_id = ou.org_id
           AND m.deleted_dt IS NULL
-        INNER JOIN TimerSlides s
+        INNER JOIN BlankItems s
           ON s.meeting_id = m.id
 		  AND s.id = ?
 		  AND s.deleted_dt IS NULL
         WHERE ou.user_id = ?
           AND ou.deleted_dt IS NULL`,
-		slideID,
+		itemID,
 		userID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -81,14 +79,14 @@ func (s lowerThirdsService) getTimerSlideByID(userID string, slideID uuid.UUID) 
 		s.logger.Error(err)
 		return nil, err
 	}
-	return &timerSlide, nil
+	return &blankItem, nil
 }
 
-func (s lowerThirdsService) getTimerSlidesByMeeting(userID string, meetingID uuid.UUID) ([]entities.TimerSlide, error) {
-	s.logger.Debug("getTimerSlidesByMeeting for userID ", userID, ", meetingID ", meetingID)
-	var timerSlides []entities.TimerSlide
+func (s lowerThirdsService) getBlankItemsByMeeting(userID uuid.UUID, meetingID uuid.UUID) ([]entities.BlankItem, error) {
+	s.logger.Debug("getBlankItemsByMeeting for userID ", userID, ", meetingID ", meetingID)
+	var blankItems []entities.BlankItem
 	err := s.MySqlDB.Select(
-		&timerSlides,
+		&blankItems,
 		`SELECT s.*
         FROM OrgUsers ou
         INNER JOIN Users u
@@ -101,7 +99,7 @@ func (s lowerThirdsService) getTimerSlidesByMeeting(userID string, meetingID uui
           ON m.org_id = ou.org_id
 		  AND m.id = ?
           AND m.deleted_dt IS NULL
-        INNER JOIN TimerSlides s
+        INNER JOIN BlankItems s
           ON s.meeting_id = m.id
 		  AND s.deleted_dt IS NULL
         WHERE ou.user_id = ?
@@ -112,14 +110,14 @@ func (s lowerThirdsService) getTimerSlidesByMeeting(userID string, meetingID uui
 		s.logger.Error(err)
 		return nil, err
 	}
-	return timerSlides, nil
+	return blankItems, nil
 }
 
-func (s lowerThirdsService) getTimerSlidesByUser(userID string) ([]entities.TimerSlide, error) {
-	s.logger.Debug("getTimerSlidesByUser for userID ", userID)
-	var timerSlides []entities.TimerSlide
+func (s lowerThirdsService) getBlankItemsByUser(userID uuid.UUID) ([]entities.BlankItem, error) {
+	s.logger.Debug("getBlankItemsByUser for userID ", userID)
+	var blankItems []entities.BlankItem
 	err := s.MySqlDB.Select(
-		&timerSlides,
+		&blankItems,
 		`SELECT s.*
         FROM OrgUsers ou
         INNER JOIN Users u
@@ -131,7 +129,7 @@ func (s lowerThirdsService) getTimerSlidesByUser(userID string) ([]entities.Time
         INNER JOIN Meetings m
           ON m.org_id = ou.org_id
           AND m.deleted_dt IS NULL
-        INNER JOIN TimerSlides s
+        INNER JOIN BlankItems s
           ON s.meeting_id = m.id
 		  AND s.deleted_dt IS NULL
         WHERE ou.user_id = ?
@@ -141,37 +139,35 @@ func (s lowerThirdsService) getTimerSlidesByUser(userID string) ([]entities.Time
 		s.logger.Error(err)
 		return nil, err
 	}
-	return timerSlides, nil
+	return blankItems, nil
 }
 
-func (s lowerThirdsService) updateTimerSlide(timerSlideID uuid.UUID, d *entities.TimerSlide) error {
-	s.logger.Debug("updateTimerSlide")
+func (s lowerThirdsService) updateBlankItem(blankItemID uuid.UUID, d *entities.BlankItem) error {
+	s.logger.Debug("updateBlankItem")
 
 	// TODO: put some user level security on this query
 	result, err := s.MySqlDB.Exec(
-		`UPDATE TimerSlides SET 
+		`UPDATE BlankItems SET
 		  id = ?,
 		  meeting_id = ?,
 		  meeting_role = ?,
-		  slide_type = ?,
-		  slide_order = ?,
-		  show_meeting_details = ?
+		  item_type = ?,
+		  item_order = ?
         WHERE id = ?`,
-		d.TimerSlideID,
+		d.BlankItemID,
 		d.MeetingID,
 		d.MeetingRole,
-		d.SlideType,
-		d.SlideOrder,
-		d.ShowMeetingDetails,
-		timerSlideID,
+		d.ItemType,
+		d.ItemOrder,
+		blankItemID,
 	)
 	if err != nil {
-		s.logger.Error("updateTimerSlide Error", err)
+		s.logger.Error("updateBlankItem Error", err)
 		return err
 	}
 	affectedRows, err := result.RowsAffected()
 	if err == nil {
-		s.logger.Info("updateTimerSlide affected rows: ", affectedRows)
+		s.logger.Info("updateBlankItem affected rows: ", affectedRows)
 	}
 	return nil
 }

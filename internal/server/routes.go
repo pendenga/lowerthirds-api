@@ -30,7 +30,7 @@ func (s *Server) Route() {
 		Route{"getMeeting", "GET", "/meetings/{MeetingID}", s.getMeeting()},
 		Route{"updateMeeting", "PUT", "/meetings/{MeetingID}", s.updateMeeting()},
 		Route{"deleteMeeting", "DELETE", "/meetings/{MeetingID}", s.deleteMeeting()},
-		Route{"getMeetingSlides", "GET", "/meetings/{MeetingID}/slides", s.getMeetingSlides()},
+		Route{"getMeetingItems", "GET", "/meetings/{MeetingID}/items", s.getMeetingItems()},
 
 		// orgs
 		Route{"getOrgs", "GET", "/orgs", s.getOrgs()},
@@ -41,12 +41,17 @@ func (s *Server) Route() {
 		Route{"getOrgMeetings", "GET", "/orgs/{OrgID}/meetings", s.getOrgMeetings()},
 		Route{"getOrgUsers", "GET", "/orgs/{OrgID}/users", s.getUsersByOrg()},
 
-		// slides
-		Route{"getSlides", "GET", "/slides", s.getSlides()},
-		Route{"postSlide", "POST", "/slides", s.postSlide()},
-		Route{"getSlide", "GET", "/slides/{SlideID}", s.getSlide()},
-		Route{"updateSlide", "PUT", "/slides/{SlideID}", s.updateSlide()},
-		Route{"deleteSlide", "DELETE", "/slides/{SlideID}", s.deleteSlide()},
+		// orgusers
+		Route{"getOrgUserMap", "GET", "/orgusers", s.getOrgUsersMap()},
+		Route{"postOrgUserMap", "POST", "/orgusers", s.postOrgUserMap()},
+		Route{"deleteOrgUserMap", "DELETE", "/orgusers", s.deleteOrgUserMap()},
+
+		// items
+		Route{"getItems", "GET", "/items", s.getItems()},
+		Route{"postItem", "POST", "/items", s.postItem()},
+		Route{"getItem", "GET", "/items/{ItemID}", s.getItem()},
+		Route{"updateItem", "PUT", "/items/{ItemID}", s.updateItem()},
+		Route{"deleteItem", "DELETE", "/items/{ItemID}", s.deleteItem()},
 
 		// users
 		Route{"getUsers", "GET", "/users", s.getUsers()},

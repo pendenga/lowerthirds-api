@@ -53,10 +53,17 @@ func (s lowerThirdsService) DeleteMeeting(ctx context.Context, meetingID uuid.UU
 }
 
 func (s lowerThirdsService) GetMeeting(ctx context.Context, meetingID uuid.UUID) (*entities.Meeting, error) {
-	userID := ctx.Value(helpers.UserIDKey).(string)
-	s.logger.Debug("GetMeeting for userID ", userID, " meetingID ", meetingID)
+	socialID := ctx.Value(helpers.SocialIDKey).(string)
+	s.logger.Debug("GetMeeting for socialID ", socialID, " meetingID ", meetingID)
+	user, err := s.GetUserBySocialID(ctx, socialID)
+	if err != nil {
+		s.logger.Error("User not found by socialID", err)
+		return nil, err
+	}
+	s.logger.Debug("GetMeeting for userID ", user.UserID, " meetingID ", meetingID)
+
 	var meeting entities.Meeting
-	err := s.MySqlDB.Get(
+	err = s.MySqlDB.Get(
 		&meeting,
 		`SELECT m.*
 		FROM OrgUsers ou
@@ -72,7 +79,7 @@ func (s lowerThirdsService) GetMeeting(ctx context.Context, meetingID uuid.UUID)
 		  AND m.id = ?
 		WHERE ou.user_id = ?
 		  AND ou.deleted_dt IS NULL`,
-		meetingID, userID)
+		meetingID, user.UserID)
 	if err != nil {
 		s.logger.Error("GetMeeting Error", err)
 		return nil, err
@@ -81,11 +88,17 @@ func (s lowerThirdsService) GetMeeting(ctx context.Context, meetingID uuid.UUID)
 }
 
 func (s lowerThirdsService) GetMeetings(ctx context.Context) (*[]entities.Meeting, error) {
-	userID := ctx.Value(helpers.UserIDKey).(string)
-	s.logger.Debug("GetMeetings for userID ", userID)
+	socialID := ctx.Value(helpers.SocialIDKey).(string)
+	s.logger.Debug("GetMeetings for socialID ", socialID)
+	user, err := s.GetUserBySocialID(ctx, socialID)
+	if err != nil {
+		s.logger.Error("User not found by socialID", err)
+		return nil, err
+	}
+	s.logger.Debug("GetMeetings for userID ", user.UserID)
 
 	var meetings []entities.Meeting
-	err := s.MySqlDB.Select(
+	err = s.MySqlDB.Select(
 		&meetings,
 		`SELECT m.*
 		FROM Users u
@@ -99,7 +112,7 @@ func (s lowerThirdsService) GetMeetings(ctx context.Context) (*[]entities.Meetin
 		  ON ou.org_id = m.org_id
 		  AND m.deleted_dt IS NULL
 		WHERE u.id = ?
-		  AND u.deleted_dt IS NULL`, userID)
+		  AND u.deleted_dt IS NULL`, user.UserID)
 	if err != nil {
 		s.logger.Error(err)
 		return nil, err

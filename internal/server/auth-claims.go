@@ -91,8 +91,8 @@ func authClaims(log *logrus.Entry) mux.MiddlewareFunc {
 				return
 			}
 
-			userID := claims["user_id"].(string)
-			ctx := context.WithValue(r.Context(), helpers.UserIDKey, userID)
+			socialID := claims["user_id"].(string)
+			ctx := context.WithValue(r.Context(), helpers.SocialIDKey, socialID)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	})

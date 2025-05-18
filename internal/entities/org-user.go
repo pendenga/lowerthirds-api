@@ -12,3 +12,8 @@ type OrgUser struct {
 	DeletedDT  null.Time `db:"deleted_dt" json:"deleted_dt"`
 	InsertedDT time.Time `db:"inserted_dt" json:"inserted_dt"`
 }
+
+type OrgUserMap struct {
+	OrgID  uuid.UUID   `json:"org_id"`
+	UserID []uuid.UUID `json:"user_ids"`
+}

@@ -2,6 +2,7 @@ package server
 
 import (
     "encoding/json"
+    "github.com/google/uuid"
     "github.com/gorilla/mux"
     "lowerthirdsapi/internal/entities"
     "lowerthirdsapi/internal/helpers"
@@ -19,7 +20,7 @@ type UserResponse struct {
 func (s *Server) deleteUser() http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
         ctx := req.Context()
-        userID := mux.Vars(req)["UserID"]
+        userID := uuid.MustParse(mux.Vars(req)["UserID"])
 
         err := s.lowerThirdsService.DeleteUser(ctx, userID)
         if err != nil {
@@ -55,7 +56,7 @@ func (s *Server) getUser() http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
         ctx := req.Context()
 
-        userID := mux.Vars(req)["UserID"]
+        userID := uuid.MustParse(mux.Vars(req)["UserID"])
 
         users, err := s.lowerThirdsService.GetUser(ctx, userID)
         if err != nil {
@@ -77,7 +78,7 @@ func (s *Server) getUserMeetings() http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
         ctx := req.Context()
 
-        userID := mux.Vars(req)["UserID"]
+        userID := uuid.MustParse(mux.Vars(req)["UserID"])
 
         meetings, err := s.lowerThirdsService.GetMeetingsByUser(ctx, userID)
         if err != nil {
@@ -107,6 +108,11 @@ func (s *Server) postUser() http.Handler {
             return
         }
 
+        // If ID is not provided, generate a new one
+        if user.UserID == uuid.Nil {
+            user.UserID = uuid.New()
+        }
+
         err := s.lowerThirdsService.CreateUser(ctx, &user)
         if err != nil {
             s.Logger.Error("CreateUser error ", err)
@@ -123,7 +129,7 @@ func (s *Server) updateUser() http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
         ctx := req.Context()
 
-        userID := mux.Vars(req)["UserID"]
+        userID := uuid.MustParse(mux.Vars(req)["UserID"])
         var user entities.User
 
         if err := json.NewDecoder(req.Body).Decode(&user); err != nil {

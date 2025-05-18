@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"lowerthirdsapi/internal/entities"
 )
 
@@ -11,12 +12,15 @@ func (s lowerThirdsService) CreateUser(ctx context.Context, u *entities.User) er
 	// TODO: put some user-level security on this query
 	_, err := s.MySqlDB.ExecContext(
 		ctx,
-		`INSERT INTO Users (id, email, first_name, full_name, last_name) VALUES (?, ?, ?, ?, ?)`,
+		`INSERT INTO Users (id, email, first_name, full_name, last_name, social_id, photo_url) 
+		VALUES (?, ?, ?, ?, ?, ?, ?)`,
 		u.UserID,
 		u.Email,
 		u.FirstName,
 		u.FullName,
 		u.LastName,
+		u.SocialID,
+		u.PhotoURL,
 	)
 	if err != nil {
 		s.logger.Error("CreateUser Error", err)
@@ -25,7 +29,7 @@ func (s lowerThirdsService) CreateUser(ctx context.Context, u *entities.User) er
 	return nil
 }
 
-func (s lowerThirdsService) DeleteUser(ctx context.Context, userID string) error {
+func (s lowerThirdsService) DeleteUser(ctx context.Context, userID uuid.UUID) error {
 	s.logger.Debug("DeleteUser for userID ", userID)
 
 	// TODO: put some user level security on this query
@@ -49,7 +53,7 @@ func (s lowerThirdsService) DeleteUser(ctx context.Context, userID string) error
 	return nil
 }
 
-func (s lowerThirdsService) GetMeetingsByUser(ctx context.Context, userID string) (*[]entities.Meeting, error) {
+func (s lowerThirdsService) GetMeetingsByUser(ctx context.Context, userID uuid.UUID) (*[]entities.Meeting, error) {
 	s.logger.Debug("GetMeetings for userID ", userID)
 
 	var meetings []entities.Meeting
@@ -75,7 +79,7 @@ func (s lowerThirdsService) GetMeetingsByUser(ctx context.Context, userID string
 	return &meetings, nil
 }
 
-func (s lowerThirdsService) GetUser(ctx context.Context, userID string) (*entities.User, error) {
+func (s lowerThirdsService) GetUser(ctx context.Context, userID uuid.UUID) (*entities.User, error) {
 	s.logger.Debug("GetUser for userID ", userID)
 	var user entities.User
 	err := s.MySqlDB.Get(&user, `SELECT * FROM Users WHERE id = ?`, userID)
@@ -98,7 +102,7 @@ func (s lowerThirdsService) GetUsers(ctx context.Context) (*[]entities.User, err
 	return &users, nil
 }
 
-func (s lowerThirdsService) UpdateUser(ctx context.Context, userID string, u *entities.User) error {
+func (s lowerThirdsService) UpdateUser(ctx context.Context, userID uuid.UUID, u *entities.User) error {
 	s.logger.Debug("UpdateUser")
 
 	// TODO: put some user level security on this query
@@ -110,12 +114,16 @@ func (s lowerThirdsService) UpdateUser(ctx context.Context, userID string, u *en
           first_name = ?, 
           full_name = ?, 
           last_name = ?
+          social_id = ?
+          photo_url = ?
         WHERE id = ?`,
 		u.UserID,
 		u.Email,
 		u.FirstName,
 		u.FullName,
 		u.LastName,
+		u.SocialID,
+		u.PhotoURL,
 		userID,
 	)
 	if err != nil {

@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"time"
 )
 
@@ -11,6 +12,8 @@ type QueryParams struct {
 	DateFrom *time.Time
 	DateTo   *time.Time
 	Language string
+	UserID   uuid.UUID
+	OrgID    uuid.UUID
 }
 
 func DefaultQueryParams() QueryParams {

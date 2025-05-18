@@ -44,6 +44,9 @@ func WithContext(ctx context.Context, log *logrus.Entry) *logrus.Entry {
 	if userID, ok := ctx.Value(helpers.UserIDKey).(string); ok {
 		log = log.WithField("userID", userID)
 	}
+	if socialID, ok := ctx.Value(helpers.SocialIDKey).(string); ok {
+		log = log.WithField("socialID", socialID)
+	}
 
 	return log
 }

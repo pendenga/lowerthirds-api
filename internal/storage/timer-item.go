@@ -7,56 +7,54 @@ import (
 	"lowerthirdsapi/internal/entities"
 )
 
-func (s lowerThirdsService) createLyricsSlide(d *entities.LyricsSlide) error {
-	s.logger.Debug("createLyricsSlide")
+func (s lowerThirdsService) createTimerItem(d *entities.TimerItem) error {
+	s.logger.Debug("createTimerItem")
 
 	// TODO: put some user-level security on this query
 	_, err := s.MySqlDB.Exec(
-		`INSERT INTO LyricsSlides (
+		`INSERT INTO TimerItems (
 		  id, 
 		  meeting_id,
 		  meeting_role,
-		  slide_type,
-		  slide_order,
-		  hymn_id,
-		  show_translation
-		) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-		d.LyricsSlideID,
+		  item_type,
+		  item_order,
+		  show_meeting_details
+		) VALUES (?, ?, ?, ?, ?, ?)`,
+		d.TimerItemID,
 		d.MeetingID,
 		d.MeetingRole,
-		d.SlideType,
-		d.SlideOrder,
-		d.HymnID,
-		d.ShowTranslation,
+		d.ItemType,
+		d.ItemOrder,
+		d.ShowMeetingDetails,
 	)
 	if err != nil {
-		s.logger.Error("createLyricsSlide Error", err)
+		s.logger.Error("createTimerItem Error", err)
 		return err
 	}
 	return nil
 }
 
-func (s lowerThirdsService) deleteLyricsSlide(userID string, slideID uuid.UUID) (int64, error) {
-	s.logger.Debug("deleteLyricsSlide for userID ", userID)
+func (s lowerThirdsService) deleteTimerItem(userID uuid.UUID, itemID uuid.UUID) (int64, error) {
+	s.logger.Debug("deleteTimerItem for userID ", userID)
 
 	// TODO: put some user level security on this query
 	result, err := s.MySqlDB.Exec(
-		`UPDATE LyricsSlides SET deleted_dt = CURRENT_TIMESTAMP WHERE id = ? AND deleted_dt IS NULL`,
-		slideID,
+		`UPDATE TimerItems SET deleted_dt = CURRENT_TIMESTAMP WHERE id = ? AND deleted_dt IS NULL`,
+		itemID,
 	)
 	if err != nil {
-		s.logger.Error("deleteLyricsSlide error ", err)
+		s.logger.Error("deleteTimerItem error ", err)
 		return 0, err
 	}
 	affectedRows, _ := result.RowsAffected()
 	return affectedRows, nil
 }
 
-func (s lowerThirdsService) getLyricsSlideByID(userID string, slideID uuid.UUID) (*entities.LyricsSlide, error) {
-	s.logger.Debug("getLyricsSlideByID for userID ", userID, ", slideID ", slideID)
-	var lyricsSlide entities.LyricsSlide
+func (s lowerThirdsService) getTimerItemByID(userID uuid.UUID, itemID uuid.UUID) (*entities.TimerItem, error) {
+	s.logger.Debug("getTimerItemByID for userID ", userID, ", itemID ", itemID)
+	var timerItem entities.TimerItem
 	err := s.MySqlDB.Get(
-		&lyricsSlide,
+		&timerItem,
 		`SELECT s.*
         FROM OrgUsers ou
         INNER JOIN Users u
@@ -68,13 +66,13 @@ func (s lowerThirdsService) getLyricsSlideByID(userID string, slideID uuid.UUID)
         INNER JOIN Meetings m
           ON m.org_id = ou.org_id
           AND m.deleted_dt IS NULL
-        INNER JOIN LyricsSlides s
+        INNER JOIN TimerItems s
           ON s.meeting_id = m.id
 		  AND s.id = ?
 		  AND s.deleted_dt IS NULL
         WHERE ou.user_id = ?
           AND ou.deleted_dt IS NULL`,
-		slideID,
+		itemID,
 		userID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -83,14 +81,14 @@ func (s lowerThirdsService) getLyricsSlideByID(userID string, slideID uuid.UUID)
 		s.logger.Error(err)
 		return nil, err
 	}
-	return &lyricsSlide, nil
+	return &timerItem, nil
 }
 
-func (s lowerThirdsService) getLyricsSlidesByMeeting(userID string, meetingID uuid.UUID) ([]entities.LyricsSlide, error) {
-	s.logger.Debug("getLyricsSlidesByMeeting for userID ", userID, ", meetingID ", meetingID)
-	var lyricsSlides []entities.LyricsSlide
+func (s lowerThirdsService) getTimerItemsByMeeting(userID uuid.UUID, meetingID uuid.UUID) ([]entities.TimerItem, error) {
+	s.logger.Debug("getTimerItemsByMeeting for userID ", userID, ", meetingID ", meetingID)
+	var timerItems []entities.TimerItem
 	err := s.MySqlDB.Select(
-		&lyricsSlides,
+		&timerItems,
 		`SELECT s.*
         FROM OrgUsers ou
         INNER JOIN Users u
@@ -103,7 +101,7 @@ func (s lowerThirdsService) getLyricsSlidesByMeeting(userID string, meetingID uu
           ON m.org_id = ou.org_id
 		  AND m.id = ?
           AND m.deleted_dt IS NULL
-        INNER JOIN LyricsSlides s
+        INNER JOIN TimerItems s
           ON s.meeting_id = m.id
 		  AND s.deleted_dt IS NULL
         WHERE ou.user_id = ?
@@ -114,14 +112,14 @@ func (s lowerThirdsService) getLyricsSlidesByMeeting(userID string, meetingID uu
 		s.logger.Error(err)
 		return nil, err
 	}
-	return lyricsSlides, nil
+	return timerItems, nil
 }
 
-func (s lowerThirdsService) getLyricsSlidesByUser(userID string) ([]entities.LyricsSlide, error) {
-	s.logger.Debug("getLyricsSlidesByUser for userID ", userID)
-	var lyricsSlides []entities.LyricsSlide
+func (s lowerThirdsService) getTimerItemsByUser(userID uuid.UUID) ([]entities.TimerItem, error) {
+	s.logger.Debug("getTimerItemsByUser for userID ", userID)
+	var timerItems []entities.TimerItem
 	err := s.MySqlDB.Select(
-		&lyricsSlides,
+		&timerItems,
 		`SELECT s.*
         FROM OrgUsers ou
         INNER JOIN Users u
@@ -133,7 +131,7 @@ func (s lowerThirdsService) getLyricsSlidesByUser(userID string) ([]entities.Lyr
         INNER JOIN Meetings m
           ON m.org_id = ou.org_id
           AND m.deleted_dt IS NULL
-        INNER JOIN LyricsSlides s
+        INNER JOIN TimerItems s
           ON s.meeting_id = m.id
 		  AND s.deleted_dt IS NULL
         WHERE ou.user_id = ?
@@ -143,39 +141,37 @@ func (s lowerThirdsService) getLyricsSlidesByUser(userID string) ([]entities.Lyr
 		s.logger.Error(err)
 		return nil, err
 	}
-	return lyricsSlides, nil
+	return timerItems, nil
 }
 
-func (s lowerThirdsService) updateLyricsSlide(lyricsSlideID uuid.UUID, d *entities.LyricsSlide) error {
-	s.logger.Debug("updateLyricsSlide")
+func (s lowerThirdsService) updateTimerItem(timerItemID uuid.UUID, d *entities.TimerItem) error {
+	s.logger.Debug("updateTimerItem")
 
 	// TODO: put some user level security on this query
 	result, err := s.MySqlDB.Exec(
-		`UPDATE LyricsSlides SET 
+		`UPDATE TimerItems SET 
 		  id = ?,
 		  meeting_id = ?,
 		  meeting_role = ?,
-		  slide_type = ?,
-		  slide_order = ?,
-		  hymn_id = ?,
-		  show_translation = ?
+		  item_type = ?,
+		  item_order = ?,
+		  show_meeting_details = ?
         WHERE id = ?`,
-		d.LyricsSlideID,
+		d.TimerItemID,
 		d.MeetingID,
 		d.MeetingRole,
-		d.SlideType,
-		d.SlideOrder,
-		d.HymnID,
-		d.ShowTranslation,
-		lyricsSlideID,
+		d.ItemType,
+		d.ItemOrder,
+		d.ShowMeetingDetails,
+		timerItemID,
 	)
 	if err != nil {
-		s.logger.Error("updateLyricsSlide Error", err)
+		s.logger.Error("updateTimerItem Error", err)
 		return err
 	}
 	affectedRows, err := result.RowsAffected()
 	if err == nil {
-		s.logger.Info("updateLyricsSlide affected rows: ", affectedRows)
+		s.logger.Info("updateTimerItem affected rows: ", affectedRows)
 	}
 	return nil
 }
