@@ -7,8 +7,16 @@ GOPATH:=$(shell go env GOPATH)
 #################################################################################
 run:
 	go mod vendor
-	ENV_FILES_DIR=./build/secrets go run ./cmd/lowerthirds-api/main.go
+	ENV_FILES_DIR=./build/secrets
+	go run ./cmd/lowerthirds-api/main.go
 	rm -rf vendor
+
+run-cgi:
+	go mod vendor
+	ENV_FILES_DIR=./build/secrets
+	go build -o ./build/public/lowerthirds.fcgi ./cgi/lowerthirds-api/main.go
+	rm -rf vendor
+
 
 test:
 	go test ./...

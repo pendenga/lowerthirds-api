@@ -1,7 +1,7 @@
 openapi: 3.0.0
 servers:
   - description: Lower Thirds API
-    url: https://virtserver.swaggerhub.com/pendenga/LowerThirds/1.0.0
+    url: https://api.lower3.com/v1
 info:
   description: Lower Thirds
   version: "1.0.0"
