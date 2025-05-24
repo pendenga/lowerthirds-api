@@ -50,14 +50,14 @@ func (s *Server) postOrgUserMap() http.Handler {
 		var orgUser entities.OrgUser
 
 		if err := json.NewDecoder(req.Body).Decode(&orgUser); err != nil {
-			s.Logger.Error("Invalid JSON ", err)
+			s.Logger.Error("[postOrgUserMap] ", err)
 			helpers.WriteError(ctx, err, w)
 			return
 		}
 
 		err := s.lowerThirdsService.CreateOrgUser(ctx, orgUser.OrgID, orgUser.UserID)
 		if err != nil {
-			s.Logger.Error("CreateOrgUser error ", err)
+			s.Logger.Error("[postOrgUserMap] CreateOrgUser error ", err)
 			helpers.WriteError(ctx, err, w)
 			return
 		}
@@ -75,7 +75,7 @@ func (s *Server) getUsersByOrg() http.Handler {
 
 		meetings, err := s.lowerThirdsService.GetUsersByOrg(ctx, orgID)
 		if err != nil {
-			s.Logger.Error("GetUsersByOrg error ", err)
+			s.Logger.Error("[getUsersByOrg] error ", err)
 			helpers.WriteError(ctx, err, w)
 			return
 		}
@@ -97,7 +97,7 @@ func (s *Server) getOrgsByUser() http.Handler {
 
 		meetings, err := s.lowerThirdsService.GetOrgsByUser(ctx, userID)
 		if err != nil {
-			s.Logger.Error("GetOrgsByUser error ", err)
+			s.Logger.Error("[getOrgsByUser] error ", err)
 			helpers.WriteError(ctx, err, w)
 			return
 		}
@@ -119,14 +119,14 @@ func (s *Server) setOrgsByUser() http.Handler {
 
 		var orgIDs []uuid.UUID
 		if err := json.NewDecoder(req.Body).Decode(&orgIDs); err != nil {
-			s.Logger.Error("Invalid JSON ", err)
+			s.Logger.Error("[setOrgsByUser] ", err)
 			helpers.WriteError(ctx, err, w)
 			return
 		}
 
 		err := s.lowerThirdsService.SetOrgsByUser(ctx, userID, orgIDs)
 		if err != nil {
-			s.Logger.Error("SetOrgsByUser error ", err)
+			s.Logger.Error("[setOrgsByUser] SetOrgsByUser error ", err)
 			helpers.WriteError(ctx, err, w)
 			return
 		}

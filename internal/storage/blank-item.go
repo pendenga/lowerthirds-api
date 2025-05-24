@@ -9,6 +9,7 @@ import (
 
 func (s lowerThirdsService) createBlankItem(d *entities.BlankItem) error {
 	s.logger.Debug("createBlankItem")
+	s.logger.Debugf("createBlankItem %+v", d)
 
 	// TODO: put some user-level security on this query
 	_, err := s.MySqlDB.Exec(
@@ -26,7 +27,7 @@ func (s lowerThirdsService) createBlankItem(d *entities.BlankItem) error {
 		d.ItemOrder,
 	)
 	if err != nil {
-		s.logger.Error("createBlankItem Error", err)
+		s.logger.Error("[createBlankItem] Error", err)
 		return err
 	}
 	return nil
@@ -41,7 +42,7 @@ func (s lowerThirdsService) deleteBlankItem(userID uuid.UUID, itemID uuid.UUID) 
 		itemID,
 	)
 	if err != nil {
-		s.logger.Error("deleteBlankItem error ", err)
+		s.logger.Error("[deleteBlankItem] error ", err)
 		return 0, err
 	}
 	affectedRows, _ := result.RowsAffected()
@@ -143,7 +144,7 @@ func (s lowerThirdsService) getBlankItemsByUser(userID uuid.UUID) ([]entities.Bl
 }
 
 func (s lowerThirdsService) updateBlankItem(blankItemID uuid.UUID, d *entities.BlankItem) error {
-	s.logger.Debug("updateBlankItem")
+	s.logger.Debug("[updateBlankItem]")
 
 	// TODO: put some user level security on this query
 	result, err := s.MySqlDB.Exec(
@@ -162,12 +163,12 @@ func (s lowerThirdsService) updateBlankItem(blankItemID uuid.UUID, d *entities.B
 		blankItemID,
 	)
 	if err != nil {
-		s.logger.Error("updateBlankItem Error", err)
+		s.logger.Error("[updateBlankItem] Error", err)
 		return err
 	}
 	affectedRows, err := result.RowsAffected()
 	if err == nil {
-		s.logger.Info("updateBlankItem affected rows: ", affectedRows)
+		s.logger.Info("[updateBlankItem] affected rows: ", affectedRows)
 	}
 	return nil
 }

@@ -25,12 +25,12 @@ func (s *Server) Route() {
 
 	var routes = Routes{
 		// meetings
-		Route{"getMeetings", "GET", "/meetings", s.getMeetings()},
+		Route{"getMeetings", "GET", "/meetings", s.getMeetings()}, // need this? Should filter by org first
 		Route{"postMeeting", "POST", "/meetings", s.postMeeting()},
 		Route{"getMeeting", "GET", "/meetings/{MeetingID}", s.getMeeting()},
 		Route{"updateMeeting", "PUT", "/meetings/{MeetingID}", s.updateMeeting()},
 		Route{"deleteMeeting", "DELETE", "/meetings/{MeetingID}", s.deleteMeeting()},
-		Route{"getMeetingItems", "GET", "/meetings/{MeetingID}/items", s.getMeetingItems()},
+		Route{"getMeetingItems", "GET", "/meetings/{MeetingID}/items", s.getMeetingItems()}, // need this? Items are included in meeting
 
 		// orgs
 		Route{"getOrgs", "GET", "/orgs", s.getOrgs()},
@@ -47,7 +47,7 @@ func (s *Server) Route() {
 		Route{"deleteOrgUserMap", "DELETE", "/orgusers", s.deleteOrgUserMap()},
 
 		// items
-		Route{"getItems", "GET", "/items", s.getItems()},
+		Route{"getItems", "GET", "/items", s.getItems()}, // need this? Should just get items by meeting or by id
 		Route{"postItem", "POST", "/items", s.postItem()},
 		Route{"getItem", "GET", "/items/{ItemID}", s.getItem()},
 		Route{"updateItem", "PUT", "/items/{ItemID}", s.updateItem()},
@@ -59,7 +59,7 @@ func (s *Server) Route() {
 		Route{"getUser", "GET", "/users/{UserID}", s.getUser()},
 		Route{"updateUser", "PUT", "/users/{UserID}", s.updateUser()},
 		Route{"deleteUser", "DELETE", "/users/{UserID}", s.deleteUser()},
-		Route{"getUserMeetings", "GET", "/users/{UserID}/meetings", s.getUserMeetings()},
+		Route{"getUserMeetings", "GET", "/users/{UserID}/meetings", s.getUserMeetings()}, // need this? Should go through org
 		Route{"getUserOrgs", "GET", "/users/{UserID}/orgs", s.getOrgsByUser()},
 		Route{"setUserOrgs", "PUT", "/users/{UserID}/orgs", s.setOrgsByUser()},
 	}

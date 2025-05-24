@@ -12,7 +12,8 @@ type Meeting struct {
 	Conference  null.String `db:"conference" json:"conference"` // nullable STRING
 	Meeting     string      `db:"meeting" json:"meeting"`
 	MeetingDate time.Time   `db:"meeting_date" json:"date"`
-	Duration    null.Int    `db:"duration" json:"duration"`     // nullable INT
+	Duration    null.Int    `db:"duration" json:"duration"` // nullable INT
+	AgendaItems []Item      `json:"agenda_items,omitempty"`
 	DeletedDT   null.Time   `db:"deleted_dt" json:"deleted_dt"` // nullable DATETIME
 	InsertedDT  time.Time   `db:"inserted_dt" json:"inserted_dt"`
 	UpdatedDT   time.Time   `db:"updated_dt" json:"updated_dt"`

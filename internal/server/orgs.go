@@ -84,8 +84,24 @@ func (s *Server) getOrgMeetings() http.Handler {
 			return
 		}
 
+		// Get agenda items for each meeting
+		// TODO: this is an inefficient way to get agenda items for each meeting
+		// consider using a JOIN in the SQL query to get all items in one go
+		var meetingsWithItems []entities.Meeting
+		for _, meeting := range *meetings {
+			agendaItems, err := s.lowerThirdsService.GetItemsByMeeting(ctx, meeting.MeetingID)
+			if err != nil {
+				s.Logger.Error(err)
+				helpers.WriteError(ctx, err, w)
+				return
+			}
+
+			meeting.AgendaItems = *agendaItems
+			meetingsWithItems = append(meetingsWithItems, meeting)
+		}
+
 		w.WriteHeader(http.StatusOK)
-		err = json.NewEncoder(w).Encode(meetings)
+		err = json.NewEncoder(w).Encode(meetingsWithItems)
 		if err != nil {
 			s.Logger.Error(err)
 			helpers.WriteError(ctx, err, w)
@@ -100,7 +116,7 @@ func (s *Server) postOrg() http.Handler {
 		var org entities.Organization
 
 		if err := json.NewDecoder(req.Body).Decode(&org); err != nil {
-			s.Logger.Error("Invalid JSON ", err)
+			s.Logger.Error("[postOrg] ", err)
 			helpers.WriteError(ctx, err, w)
 			return
 		}
@@ -112,7 +128,7 @@ func (s *Server) postOrg() http.Handler {
 
 		err := s.lowerThirdsService.CreateOrg(ctx, &org)
 		if err != nil {
-			s.Logger.Error("CreateOrg error ", err)
+			s.Logger.Error("[postOrg] CreateOrg error ", err)
 			helpers.WriteError(ctx, err, w)
 			return
 		}
@@ -130,7 +146,7 @@ func (s *Server) updateOrg() http.Handler {
 		var org entities.Organization
 
 		if err := json.NewDecoder(req.Body).Decode(&org); err != nil {
-			s.Logger.Error("Invalid JSON ", err)
+			s.Logger.Error("[updateOrg] ", err)
 			helpers.WriteError(ctx, err, w)
 			return
 		}
@@ -140,7 +156,7 @@ func (s *Server) updateOrg() http.Handler {
 
 		err := s.lowerThirdsService.UpdateOrg(ctx, orgID, &org)
 		if err != nil {
-			s.Logger.Error("UpdateOrg error ", err)
+			s.Logger.Error("[updateOrg] UpdateOrg error ", err)
 			helpers.WriteError(ctx, err, w)
 			return
 		}

@@ -577,6 +577,7 @@ components:
         - id
         - type
         - order
+        - meeting_id
         - meeting_role
       properties:
         id:
@@ -585,6 +586,8 @@ components:
           $ref: '#/components/schemas/ItemType'
         order:
           $ref: '#/components/schemas/Order'
+        meeting_id:
+          $ref: '#/components/schemas/ID'
         meeting_role:
           $ref: '#/components/schemas/MeetingRole'
     Date:

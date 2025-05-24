@@ -10,7 +10,8 @@ import (
 
 func (s lowerThirdsService) CreateItem(ctx context.Context, item entities.Item) error {
 	socialID := ctx.Value(helpers.SocialIDKey).(string)
-	s.logger.Debug("CreateItems for socialID ", socialID)
+	s.logger.Debug("[CreateItem] for socialID ", socialID)
+	s.logger.Debugf("[CreateItem] %+v", item)
 
 	// Each type of item handled separately
 	switch v := item.(type) {
@@ -18,52 +19,54 @@ func (s lowerThirdsService) CreateItem(ctx context.Context, item entities.Item) 
 		if v.BlankItemID == uuid.Nil {
 			v.BlankItemID = uuid.New()
 		}
+		s.logger.Debugf("[CreateItem] createBlankItem %+v", v)
 		err := s.createBlankItem(v)
 		if err != nil {
 			s.logger.Error("error creating blankItem ", err)
 			return err
-		}
-		break
+			}
 	case *entities.LyricsItem:
 		if v.LyricsItemID == uuid.Nil {
 			v.LyricsItemID = uuid.New()
 		}
+		s.logger.Debugf("[CreateItem] createLyricsItem %+v", v)
 		err := s.createLyricsItem(v)
 		if err != nil {
 			s.logger.Error("error creating lyricsItem ", err)
 			return err
-		}
-		break
+			}
 	case *entities.MessageItem:
 		if v.MessageItemID == uuid.Nil {
 			v.MessageItemID = uuid.New()
 		}
+		s.logger.Debugf("[CreateItem] createMessageItem %+v", v)
 		err := s.createMessageItem(v)
 		if err != nil {
 			s.logger.Error("error creating messageItem ", err)
 			return err
-		}
-		break
+			}
 	case *entities.SpeakerItem:
 		if v.SpeakerItemID == uuid.Nil {
 			v.SpeakerItemID = uuid.New()
 		}
+		s.logger.Debugf("[CreateItem] createSpeakerItem %+v", v)
 		err := s.createSpeakerItem(v)
 		if err != nil {
 			s.logger.Error("error creating speakerItem ", err)
 			return err
-		}
-		break
+			}
 	case *entities.TimerItem:
 		if v.TimerItemID == uuid.Nil {
 			v.TimerItemID = uuid.New()
 		}
+		s.logger.Debugf("[CreateItem] createTimerItem %+v", v)
 		err := s.createTimerItem(v)
 		if err != nil {
 			s.logger.Error("error creating timerItem ", err)
 			return err
-		}
-		break
+			}
+	default:
+		s.logger.Debugf("[CreateItem] default %+v", v)
 	}
 	return nil
 }

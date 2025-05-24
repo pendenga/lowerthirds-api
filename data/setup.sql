@@ -57,6 +57,7 @@ CREATE TABLE SpeakerItems (
     item_order INT NOT NULL,
     speaker_name CHAR(200) NOT NULL,
     title CHAR(200) NULL,
+    expected_duration INT NULL,
     deleted_dt DATETIME NULL,
     inserted_dt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_dt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
