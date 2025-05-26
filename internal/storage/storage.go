@@ -30,7 +30,7 @@ type LowerThirdsService interface {
 	DeleteOrgUser(ctx context.Context, orgID uuid.UUID, userID uuid.UUID) error
 	GetOrgsByUser(ctx context.Context, userID uuid.UUID) (*[]entities.Organization, error)
 	SetOrgsByUser(ctx context.Context, userID uuid.UUID, orgIDs []uuid.UUID) error
-	GetOrgUsersMap(ctx context.Context) (*[]entities.OrgUserMap, error)
+	GetOrgUsersMap(ctx context.Context) (map[uuid.UUID][]uuid.UUID, error)
 	GetUsersByOrg(ctx context.Context, orgID uuid.UUID) (*[]entities.User, error)
 
 	// Items

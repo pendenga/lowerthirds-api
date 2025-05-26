@@ -5,4 +5,3 @@ RewriteCond %{REQUEST_FILENAME} !-d [OR]
 RewriteCond %{REQUEST_URI} ^/$
 RewriteRule ^(.*)$ lowerthirds.fcgi/$1 [QSA,L]
 ErrorDocument 500 "Application failed to start properly"
-~

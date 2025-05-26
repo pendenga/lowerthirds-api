@@ -41,11 +41,6 @@ func (s *Server) Route() {
 		Route{"getOrgMeetings", "GET", "/v1/orgs/{OrgID}/meetings", s.getOrgMeetings()},
 		Route{"getOrgUsers", "GET", "/v1/orgs/{OrgID}/users", s.getUsersByOrg()},
 
-		// orgusers
-		Route{"getOrgUserMap", "GET", "/v1/orgusers", s.getOrgUsersMap()},
-		Route{"postOrgUserMap", "POST", "/v1/orgusers", s.postOrgUserMap()},
-		Route{"deleteOrgUserMap", "DELETE", "/v1/orgusers", s.deleteOrgUserMap()},
-
 		// items
 		Route{"getItems", "GET", "/v1/items", s.getItems()}, // need this? Should just get items by meeting or by id
 		Route{"postItem", "POST", "/v1/items", s.postItem()},

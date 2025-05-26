@@ -29,12 +29,26 @@ func (s lowerThirdsService) CreateOrg(ctx context.Context, o *entities.Organizat
 		return err
 	}
 
-	// add permission for this new org
-	err = s.CreateOrgUser(ctx, o.OrgID, user.UserID)
-	if err != nil {
-		s.logger.Error("CreateOrg Error", err)
-		return err
+	// check if user.UserID is already in o.UserIDs
+	var nu []uuid.UUID
+	found := false
+	for _, userID := range o.UserIDs {
+		nu = append(nu, userID)
+		if userID == user.UserID {
+			found = true
+		}
 	}
+	if !found {
+		nu = append(nu, user.UserID)
+	}
+
+	// After updating the org, we need to validate the user list
+	var ex []uuid.UUID
+	affectedRows, err := s.reconcileUsers(ctx, o.OrgID, ex, nu)
+	if err == nil {
+		s.logger.Info("CreateOrg affected users: ", affectedRows)
+	}
+
 	return nil
 }
 
@@ -53,12 +67,25 @@ func (s lowerThirdsService) DeleteOrg(ctx context.Context, orgID uuid.UUID) erro
 		s.logger.Error("DeleteOrg error ", err)
 		return err
 	}
-
 	affectedRows, err := result.RowsAffected()
 	if err == nil {
 		s.logger.Info("DeleteOrg affected rows: ", affectedRows)
-
 	}
+
+	// delete all users
+	ex, err := s.GetUserIDsByOrg(ctx, orgID)
+	if err != nil {
+		s.logger.Error("DeleteOrg Users Error", err)
+		return err
+	}
+
+	// After updating the org, we need to validate the user list
+	var nu []uuid.UUID
+	affectedRows, err = s.reconcileUsers(ctx, orgID, *ex, nu)
+	if err == nil {
+		s.logger.Info("DeleteOrg affected users: ", affectedRows)
+	}
+
 	return nil
 }
 
@@ -125,6 +152,15 @@ func (s lowerThirdsService) GetOrg(ctx context.Context, orgID uuid.UUID) (*entit
 		s.logger.Error("GetOrg Error", err)
 		return nil, err
 	}
+
+	// assign all users to all orgs
+	userIDs, err := s.GetUserIDsByOrg(ctx, orgID)
+	if err != nil {
+		s.logger.Error("GetOrg Users Error", err)
+		return nil, err
+	}
+	org.UserIDs = *userIDs
+
 	return &org, nil
 }
 
@@ -156,7 +192,21 @@ func (s lowerThirdsService) GetOrgs(ctx context.Context) (*[]entities.Organizati
 		s.logger.Error(err)
 		return nil, err
 	}
-	return &orgs, nil
+
+	// assign all users to all orgs
+	OrgUsersMap, err := s.GetOrgUsersMap(ctx)
+	if err != nil {
+		s.logger.Error("GetOrgs Users Error", err)
+		return nil, err
+	}
+
+	var returnOrgs []entities.Organization
+	for _, org := range orgs {
+		org.UserIDs = OrgUsersMap[org.OrgID]
+		returnOrgs = append(returnOrgs, org)
+	}
+
+	return &returnOrgs, nil
 }
 
 func (s lowerThirdsService) UpdateOrg(ctx context.Context, orgID uuid.UUID, o *entities.Organization) error {
@@ -178,5 +228,58 @@ func (s lowerThirdsService) UpdateOrg(ctx context.Context, orgID uuid.UUID, o *e
 	if err == nil {
 		s.logger.Info("UpdateOrg affected rows: ", affectedRows)
 	}
+
+	// get existing users for the org
+	existingUserIDs, err := s.GetUserIDsByOrg(ctx, orgID)
+	if err != nil {
+		s.logger.Error("GetUsersByOrg Error", err)
+		return err
+	}
+
+	// After updating the org, we need to validate the user list
+	affectedRows, err = s.reconcileUsers(ctx, orgID, *existingUserIDs, o.UserIDs)
+	if err == nil {
+		s.logger.Info("UpdateOrg affected rows: ", affectedRows)
+	}
+
 	return nil
+}
+
+func (s lowerThirdsService) reconcileUsers(ctx context.Context, orgID uuid.UUID, ex []uuid.UUID, nu []uuid.UUID) (int64, error) {
+	// make a map of existing users
+	existingUserMap := make(map[uuid.UUID]bool)
+	for _, userID := range ex {
+		existingUserMap[userID] = true
+	}
+
+	var affected int64 = 0
+	newUserMap := make(map[uuid.UUID]bool)
+	for _, userID := range nu {
+		// Add to map of new users
+		newUserMap[userID] = true
+
+		// If the user is in the new map but not in the existing map, add them
+		if _, exists := existingUserMap[userID]; !exists {
+			err := s.CreateOrgUser(ctx, orgID, userID)
+			if err != nil {
+				s.logger.Error("CreateOrgUser Error", err)
+				return 0, err
+			}
+			affected++
+		}
+	}
+
+	// If the user is in the existing map but not in the new map, remove them
+	for _, userID := range ex {
+		if _, exists := newUserMap[userID]; !exists {
+			err := s.DeleteOrgUser(ctx, orgID, userID)
+			if err != nil {
+				s.logger.Error("DeleteOrgUser Error", err)
+				return 0, err
+			}
+			affected++
+		}
+	}
+
+	return affected, nil
 }

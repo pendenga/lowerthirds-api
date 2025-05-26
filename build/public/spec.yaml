@@ -18,6 +18,111 @@ tags:
   - name: Users
     description: Manage users
 paths:
+  /items:
+    get:
+      tags:
+        - Items
+      summary: List of items
+      description: List of items
+      operationId: getItems
+      parameters:
+        - $ref: "#/components/parameters/meetingId"
+        - $ref: "#/components/parameters/orgId"
+        - $ref: "#/components/parameters/dateFrom"
+        - $ref: "#/components/parameters/dateTo"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/pageSize"
+      responses:
+        '201':
+          $ref: '#/components/responses/items'
+        '400':
+          description: 'invalid input, object invalid'
+    post:
+      tags:
+        - Items
+      summary: Creates an item
+      description: Creates an item
+      operationId: postItem
+      responses:
+        '201':
+          description: item created
+        '400':
+          description: 'invalid input, item invalid'
+        '409':
+          description: an existing item already exists
+      parameters: []
+      requestBody:
+        description: Meeting to add
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/BlankItem'
+                - $ref: '#/components/schemas/LyricsItem'
+                - $ref: '#/components/schemas/MessageItem'
+                - $ref: '#/components/schemas/SpeakerItem'
+                - $ref: '#/components/schemas/TimerItem'
+  /items/{ItemID}:
+    get:
+      tags:
+        - Items
+      summary: Get item
+      description: Get item
+      operationId: getSlid
+      parameters:
+        - $ref: "#/components/parameters/itemId"
+      responses:
+        '200':
+          $ref: '#/components/responses/item'
+        '401':
+          description: |
+            You did not supply valid Authorization. The response will be empty.
+        '404':
+          description: The record doesn’t exist. The response will be empty.
+    put:
+      tags:
+        - Items
+      summary: Update an existing item
+      description: Update an existing item
+      operationId: updateItem
+      parameters:
+        - $ref: "#/components/parameters/itemId"
+      requestBody:
+        description: Item object
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/BlankItem'
+                - $ref: '#/components/schemas/LyricsItem'
+                - $ref: '#/components/schemas/MessageItem'
+                - $ref: '#/components/schemas/SpeakerItem'
+                - $ref: '#/components/schemas/TimerItem'
+      responses:
+        '200':
+          $ref: '#/components/responses/item'
+        '401':
+          description: |
+            You did not supply valid Authorization. The response will be empty.
+        '404':
+          description: The record doesn’t exist. The response will be empty.
+        '409':
+          description: an existing item already exists
+    delete:
+      tags:
+        - Items
+      summary: Delete an item
+      description: Delete an item
+      operationId: deleteItem
+      parameters:
+        - $ref: "#/components/parameters/itemId"
+      responses:
+        '200':
+          description: The request was successful. The response will be empty.
+        '401':
+          description: You did not supply valid Authorization. The response will be empty.
+        '404':
+          description: The record doesn’t exist. The response will be empty.
   /meetings:
     get:
       tags:
@@ -94,6 +199,8 @@ paths:
             You did not supply valid Authorization. The response will be empty.
         '404':
           description: The record doesn’t exist. The response will be empty.
+        '409':
+          description: an existing item already exists
     delete:
       tags:
         - Meetings
@@ -199,6 +306,8 @@ paths:
             You did not supply valid Authorization. The response will be empty.
         '404':
           description: The record doesn’t exist. The response will be empty.
+        '409':
+          description: an existing item already exists
     delete:
       tags:
         - Orgs
@@ -249,185 +358,6 @@ paths:
           $ref: '#/components/responses/users'
         '400':
           description: 'invalid input, object invalid'
-  /orgusers:
-    get:
-      tags:
-        - OrgUsers
-      summary: Get organization-to-user map
-      description: Returns a mapping of organization IDs to arrays of user IDs
-      operationId: getOrgUsers
-      responses:
-        '200':
-          description: A mapping of org IDs to arrays of user IDs
-          content:
-            application/json:
-              schema:
-                type: object
-                additionalProperties:
-                  type: array
-                  items:
-                    type: string
-        '401':
-          description: Unauthorized
-        '500':
-          description: Server error
-    post:
-      tags:
-        - OrgUsers
-      summary: Assign user to organization
-      description: Creates a mapping between a user and an organization
-      operationId: postOrgUser
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [user_id, organization_id]
-              properties:
-                user_id:
-                  type: string
-                organization_id:
-                  type: string
-      responses:
-        '204':
-          description: Assignment successful
-        '400':
-          description: Invalid input
-        '401':
-          description: Unauthorized
-        '500':
-          description: Server error
-
-    delete:
-      tags:
-        - OrgUsers
-      summary: Unassign user from organization
-      description: Deletes a mapping between a user and an organization
-      operationId: deleteOrgUser
-      parameters:
-        - in: query
-          name: user_id
-          required: true
-          schema:
-            type: string
-        - in: query
-          name: organization_id
-          required: true
-          schema:
-            type: string
-      responses:
-        '204':
-          description: Unassignment successful
-        '400':
-          description: Invalid input
-        '401':
-          description: Unauthorized
-        '500':
-          description: Server error
-  /items:
-    get:
-      tags:
-        - Items
-      summary: List of items
-      description: List of items
-      operationId: getItems
-      parameters:
-        - $ref: "#/components/parameters/meetingId"
-        - $ref: "#/components/parameters/orgId"
-        - $ref: "#/components/parameters/dateFrom"
-        - $ref: "#/components/parameters/dateTo"
-        - $ref: "#/components/parameters/page"
-        - $ref: "#/components/parameters/pageSize"
-      responses:
-        '201':
-          $ref: '#/components/responses/items'
-        '400':
-          description: 'invalid input, object invalid'
-    post:
-      tags:
-        - Items
-      summary: Creates an item
-      description: Creates an item
-      operationId: postItem
-      responses:
-        '201':
-          description: item created
-        '400':
-          description: 'invalid input, item invalid'
-        '409':
-          description: an existing item already exists
-      parameters: []
-      requestBody:
-        description: Meeting to add
-        content:
-          application/json:
-            schema:
-              oneOf:
-                - $ref: '#/components/schemas/BlankItem'
-                - $ref: '#/components/schemas/LyricsItem'
-                - $ref: '#/components/schemas/MessageItem'
-                - $ref: '#/components/schemas/SpeakerItem'
-                - $ref: '#/components/schemas/TimerItem'
-  /items/{ItemID}:
-    get:
-      tags:
-        - Items
-      summary: Get item
-      description: Get item
-      operationId: getSlid
-      parameters:
-        - $ref: "#/components/parameters/itemId"
-      responses:
-        '200':
-          $ref: '#/components/responses/item'
-        '401':
-          description: |
-            You did not supply valid Authorization. The response will be empty.
-        '404':
-          description: The record doesn’t exist. The response will be empty.
-    put:
-      tags:
-        - Items
-      summary: Update an existing item
-      description: Update an existing item
-      operationId: updateItem
-      parameters:
-        - $ref: "#/components/parameters/itemId"
-      requestBody:
-        description: Item object
-        content:
-          application/json:
-            schema:
-              oneOf:
-                - $ref: '#/components/schemas/BlankItem'
-                - $ref: '#/components/schemas/LyricsItem'
-                - $ref: '#/components/schemas/MessageItem'
-                - $ref: '#/components/schemas/SpeakerItem'
-                - $ref: '#/components/schemas/TimerItem'
-      responses:
-        '200':
-          $ref: '#/components/responses/item'
-        '401':
-          description: |
-            You did not supply valid Authorization. The response will be empty.
-        '404':
-          description: The record doesn’t exist. The response will be empty.
-    delete:
-      tags:
-        - Items
-      summary: Delete an item
-      description: Delete an item
-      operationId: deleteItem
-      parameters:
-        - $ref: "#/components/parameters/itemId"
-      responses:
-        '200':
-          description: The request was successful. The response will be empty.
-        '401':
-          description: You did not supply valid Authorization. The response will be empty.
-        '404':
-          description: The record doesn’t exist. The response will be empty.
   /users:
     get:
       tags:
@@ -463,6 +393,8 @@ paths:
         '401':
           description: |
             You did not supply valid Authorization. The response will be empty.
+        '409':
+          description: an existing item already exists
   /users/{UserID}:
     get:
       tags:
@@ -502,6 +434,8 @@ paths:
             You did not supply valid Authorization. The response will be empty.
         '404':
           description: The record doesn’t exist. The response will be empty.
+        '409':
+          description: an existing item already exists
     delete:
       tags:
         - Users
@@ -568,6 +502,8 @@ paths:
           description: orgs set for user
         '400':
           description: 'invalid input, orgs invalid'
+        '409':
+          description: an existing item already exists
 components:
   schemas:
     BlankItem:

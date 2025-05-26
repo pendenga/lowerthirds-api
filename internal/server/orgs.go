@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"lowerthirdsapi/internal/entities"
@@ -17,9 +18,15 @@ type OrgResponse struct {
 func (s *Server) deleteOrg() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		ctx := req.Context()
-		orgID := uuid.MustParse(mux.Vars(req)["OrgID"])
 
-		err := s.lowerThirdsService.DeleteOrg(ctx, orgID)
+		orgID, err := uuid.Parse(mux.Vars(req)["OrgID"])
+		if err != nil {
+			s.Logger.Error("[deleteOrg] error ", err)
+			helpers.WriteError(ctx, err, w)
+			return
+		}
+
+		err = s.lowerThirdsService.DeleteOrg(ctx, orgID)
 		if err != nil {
 			s.Logger.Error(err)
 			helpers.WriteError(ctx, err, w)
@@ -53,7 +60,12 @@ func (s *Server) getOrg() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		ctx := req.Context()
 
-		orgID := uuid.MustParse(mux.Vars(req)["OrgID"])
+		orgID, err := uuid.Parse(mux.Vars(req)["OrgID"])
+		if err != nil {
+			s.Logger.Error("[getOrg] error ", err)
+			helpers.WriteError(ctx, err, w)
+			return
+		}
 
 		orgs, err := s.lowerThirdsService.GetOrg(ctx, orgID)
 		if err != nil {
@@ -75,7 +87,12 @@ func (s *Server) getOrgMeetings() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		ctx := req.Context()
 
-		orgID := uuid.MustParse(mux.Vars(req)["OrgID"])
+		orgID, err := uuid.Parse(mux.Vars(req)["OrgID"])
+		if err != nil {
+			s.Logger.Error("[getOrgMeetings] error ", err)
+			helpers.WriteError(ctx, err, w)
+			return
+		}
 
 		meetings, err := s.lowerThirdsService.GetMeetingsByOrg(ctx, orgID)
 		if err != nil {
@@ -109,6 +126,33 @@ func (s *Server) getOrgMeetings() http.Handler {
 	})
 }
 
+func (s *Server) getUsersByOrg() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		ctx := req.Context()
+
+		orgID, err := uuid.Parse(mux.Vars(req)["OrgID"])
+		if err != nil {
+			s.Logger.Error("[getUsersByOrg] error ", err)
+			helpers.WriteError(ctx, err, w)
+			return
+		}
+
+		meetings, err := s.lowerThirdsService.GetUsersByOrg(ctx, orgID)
+		if err != nil {
+			s.Logger.Error("[getUsersByOrg] error ", err)
+			helpers.WriteError(ctx, err, w)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		err = json.NewEncoder(w).Encode(meetings)
+		if err != nil {
+			s.Logger.Error(err)
+			helpers.WriteError(ctx, err, w)
+		}
+	})
+}
+
 func (s *Server) postOrg() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		ctx := req.Context()
@@ -128,6 +172,11 @@ func (s *Server) postOrg() http.Handler {
 
 		err := s.lowerThirdsService.CreateOrg(ctx, &org)
 		if err != nil {
+			// Check for MySQL duplicate entry error
+			if mysqlErr, ok := err.(*mysql.MySQLError); ok && mysqlErr.Number == 1062 {
+				http.Error(w, "[postOrg] already exists", http.StatusConflict)
+				return
+			}
 			s.Logger.Error("[postOrg] CreateOrg error ", err)
 			helpers.WriteError(ctx, err, w)
 			return
@@ -142,9 +191,14 @@ func (s *Server) updateOrg() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		ctx := req.Context()
 
-		orgID := uuid.MustParse(mux.Vars(req)["OrgID"])
-		var org entities.Organization
+		orgID, err := uuid.Parse(mux.Vars(req)["OrgID"])
+		if err != nil {
+			s.Logger.Error("[updateOrg] error ", err)
+			helpers.WriteError(ctx, err, w)
+			return
+		}
 
+		var org entities.Organization
 		if err := json.NewDecoder(req.Body).Decode(&org); err != nil {
 			s.Logger.Error("[updateOrg] ", err)
 			helpers.WriteError(ctx, err, w)
@@ -154,8 +208,13 @@ func (s *Server) updateOrg() http.Handler {
 		// Ensure the org ID from the path matches the payload and allow for exclusion in the payload
 		org.OrgID = orgID
 
-		err := s.lowerThirdsService.UpdateOrg(ctx, orgID, &org)
+		err = s.lowerThirdsService.UpdateOrg(ctx, orgID, &org)
 		if err != nil {
+			// Check for MySQL duplicate entry error
+			if mysqlErr, ok := err.(*mysql.MySQLError); ok && mysqlErr.Number == 1062 {
+				http.Error(w, "[updateOrg] already exists", http.StatusConflict)
+				return
+			}
 			s.Logger.Error("[updateOrg] UpdateOrg error ", err)
 			helpers.WriteError(ctx, err, w)
 			return

@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"io"
@@ -13,9 +14,15 @@ import (
 func (s *Server) deleteItem() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		ctx := req.Context()
-		itemID := uuid.MustParse(mux.Vars(req)["ItemID"])
 
-		err := s.lowerThirdsService.DeleteItem(ctx, itemID)
+		itemID, err := uuid.Parse(mux.Vars(req)["ItemID"])
+		if err != nil {
+			s.Logger.Error("[deleteItem] error ", err)
+			helpers.WriteError(ctx, err, w)
+			return
+		}
+
+		err = s.lowerThirdsService.DeleteItem(ctx, itemID)
 		if err != nil {
 			s.Logger.Error(err)
 			helpers.WriteError(ctx, err, w)
@@ -49,7 +56,12 @@ func (s *Server) getItem() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		ctx := req.Context()
 
-		itemID := uuid.MustParse(mux.Vars(req)["ItemID"])
+		itemID, err := uuid.Parse(mux.Vars(req)["ItemID"])
+		if err != nil {
+			s.Logger.Error("[getItem] error ", err)
+			helpers.WriteError(ctx, err, w)
+			return
+		}
 
 		item, err := s.lowerThirdsService.GetItem(ctx, itemID)
 		if err != nil {
@@ -96,6 +108,11 @@ func (s *Server) postItem() http.Handler {
 		ctx := req.Context()
 		err = s.lowerThirdsService.CreateItem(ctx, item)
 		if err != nil {
+			// Check for MySQL duplicate entry error
+			if mysqlErr, ok := err.(*mysql.MySQLError); ok && mysqlErr.Number == 1062 {
+				http.Error(w, "[postItem] already exists", http.StatusConflict)
+				return
+			}
 			s.Logger.Error("[postItem] CreateItem error ", err)
 			helpers.WriteError(ctx, err, w)
 			return
@@ -110,7 +127,12 @@ func (s *Server) updateItem() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		ctx := req.Context()
 
-		itemID := uuid.MustParse(mux.Vars(req)["ItemID"])
+		itemID, err := uuid.Parse(mux.Vars(req)["ItemID"])
+		if err != nil {
+			s.Logger.Error("[updateItem] error ", err)
+			helpers.WriteError(ctx, err, w)
+			return
+		}
 
 		bodyBytes, err := io.ReadAll(req.Body)
 		if err != nil {
@@ -132,6 +154,11 @@ func (s *Server) updateItem() http.Handler {
 
 		err = s.lowerThirdsService.UpdateItem(ctx, itemID, item)
 		if err != nil {
+			// Check for MySQL duplicate entry error
+			if mysqlErr, ok := err.(*mysql.MySQLError); ok && mysqlErr.Number == 1062 {
+				http.Error(w, "[updateItem] already exists", http.StatusConflict)
+				return
+			}
 			s.Logger.Error("[updateItem] UpdateItem error ", err)
 			helpers.WriteError(ctx, err, w)
 			return

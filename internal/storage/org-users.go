@@ -70,7 +70,7 @@ func (s lowerThirdsService) DeleteOrgsByUser(ctx context.Context, userID uuid.UU
 	return nil
 }
 
-func (s lowerThirdsService) GetOrgUsersMap(ctx context.Context) (*[]entities.OrgUserMap, error) {
+func (s lowerThirdsService) GetOrgUsersMap(ctx context.Context) (map[uuid.UUID][]uuid.UUID, error) {
 	socialID := ctx.Value(helpers.SocialIDKey).(string)
 	s.logger.Debug("GetOrgUsersMap for socialID ", socialID)
 	user, err := s.GetUserBySocialID(ctx, socialID)
@@ -105,15 +105,16 @@ func (s lowerThirdsService) GetOrgUsersMap(ctx context.Context) (*[]entities.Org
 		queryMap[row.OrgID] = append(queryMap[row.OrgID], row.UserID)
 	}
 
-	result := make([]entities.OrgUserMap, 0, len(queryMap))
-	for orgID, userIDs := range queryMap {
-		result = append(result, entities.OrgUserMap{
-			OrgID:  orgID,
-			UserID: userIDs,
-		})
-	}
+	return queryMap, nil
 
-	return &result, nil
+	//result := make([]entities.OrgUserMap, 0, len(queryMap))
+	//for orgID, userIDs := range queryMap {
+	//	result = append(result, entities.OrgUserMap{
+	//		OrgID:  orgID,
+	//		UserID: userIDs,
+	//	})
+	//}
+	//return &result, nil
 }
 
 func (s lowerThirdsService) GetUsersByOrg(ctx context.Context, orgID uuid.UUID) (*[]entities.User, error) {
@@ -138,6 +139,30 @@ func (s lowerThirdsService) GetUsersByOrg(ctx context.Context, orgID uuid.UUID) 
 		return nil, err
 	}
 	return &users, nil
+}
+
+func (s lowerThirdsService) GetUserIDsByOrg(ctx context.Context, orgID uuid.UUID) (*[]uuid.UUID, error) {
+	s.logger.Debug("GetUsers for orgID ", orgID)
+
+	var userIDs []uuid.UUID
+	err := s.MySqlDB.Select(
+		&userIDs,
+		`SELECT u.id
+		FROM OrgUsers ou
+		INNER JOIN Users u
+		  ON u.id = ou.user_id
+		  AND u.deleted_dt IS NULL
+		INNER JOIN Organization o
+		  ON o.id = ou.org_id
+		  AND o.deleted_dt IS NULL
+		WHERE ou.org_id = ?
+		  AND ou.deleted_dt IS NULL`,
+		orgID)
+	if err != nil {
+		s.logger.Error(err)
+		return nil, err
+	}
+	return &userIDs, nil
 }
 
 func (s lowerThirdsService) GetOrgsByUser(ctx context.Context, userID uuid.UUID) (*[]entities.Organization, error) {
