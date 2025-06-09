@@ -1,0 +1,52 @@
+	lowerthirdsapi/cgi/lowerthirds-api		coverage: 0.0% of statements
+	lowerthirdsapi/internal/logger		coverage: 0.0% of statements
+	lowerthirdsapi/internal/apierrors		coverage: 0.0% of statements
+	lowerthirdsapi/internal/config		coverage: 0.0% of statements
+	lowerthirdsapi/cmd/lowerthirds-api		coverage: 0.0% of statements
+ok  	lowerthirdsapi/internal/entities	(cached)	coverage: 12.0% of statements
+	lowerthirdsapi/internal/helpers		coverage: 0.0% of statements
+	lowerthirdsapi/internal/server		coverage: 0.0% of statements
+	lowerthirdsapi/internal/testutil		coverage: 0.0% of statements
+time="2025-06-08T20:11:55-07:00" level=info msg="CreateOrg affected users: 1" test=true
+time="2025-06-08T20:11:55-07:00" level=info msg="CreateOrg affected users: 1" test=true
+time="2025-06-08T20:11:55-07:00" level=info msg="DeleteItems affectedRows rows: 1" test=true
+time="2025-06-08T20:11:55-07:00" level=info msg="CreateOrg affected users: 1" test=true
+time="2025-06-08T20:11:55-07:00" level=info msg="[updateBlankItem] affected rows: 1" test=true
+time="2025-06-08T20:11:55-07:00" level=info msg="CreateOrg affected users: 1" test=true
+time="2025-06-08T20:11:55-07:00" level=info msg="CreateOrg affected users: 1" test=true
+time="2025-06-08T20:11:55-07:00" level=info msg="CreateOrg affected users: 1" test=true
+time="2025-06-08T20:11:55-07:00" level=info msg="CreateOrg affected users: 1" test=true
+time="2025-06-08T20:11:55-07:00" level=error msg="GetUserBySocialID Errorsql: no rows in result set" test=true
+time="2025-06-08T20:11:55-07:00" level=error msg="User not found by socialIDsql: no rows in result set" test=true
+time="2025-06-08T20:11:55-07:00" level=info msg="CreateOrg affected users: 1" test=true
+time="2025-06-08T20:11:55-07:00" level=info msg="updateSpeakerItem affected rows: 1" test=true
+time="2025-06-08T20:11:55-07:00" level=info msg="DeleteItems affectedRows rows: 1" test=true
+time="2025-06-08T20:11:55-07:00" level=info msg="CreateOrg affected users: 1" test=true
+time="2025-06-08T20:11:55-07:00" level=info msg="updateLyricsItem affected rows: 1" test=true
+time="2025-06-08T20:11:55-07:00" level=info msg="DeleteItems affectedRows rows: 1" test=true
+time="2025-06-08T20:11:55-07:00" level=info msg="CreateOrg affected users: 1" test=true
+time="2025-06-08T20:11:55-07:00" level=info msg="updateTimerItem affected rows: 1" test=true
+time="2025-06-08T20:11:55-07:00" level=info msg="DeleteItems affectedRows rows: 1" test=true
+time="2025-06-08T20:11:55-07:00" level=info msg="[updateBlankItem] affected rows: 0" test=true
+time="2025-06-08T20:11:55-07:00" level=error msg="error updating blankItem sql: no rows in result set" test=true
+time="2025-06-08T20:11:55-07:00" level=error msg="GetUserBySocialID Errorsql: no rows in result set" test=true
+time="2025-06-08T20:11:55-07:00" level=error msg="User not found by socialIDsql: no rows in result set" test=true
+time="2025-06-08T20:11:55-07:00" level=info msg="CreateOrg affected users: 1" test=true
+time="2025-06-08T20:11:55-07:00" level=error msg="[createBlankItem] ErrorError 1062: Duplicate entry '30381e79-f6e6-468e-a747-4ed6e24fa8e8' for key 'blankitems.PRIMARY'" test=true
+time="2025-06-08T20:11:55-07:00" level=error msg="error creating blankItem Error 1062: Duplicate entry '30381e79-f6e6-468e-a747-4ed6e24fa8e8' for key 'blankitems.PRIMARY'" test=true
+time="2025-06-08T20:11:55-07:00" level=info msg="CreateOrg affected users: 1" test=true
+time="2025-06-08T20:11:55-07:00" level=error msg="GetUserBySocialID Errorsql: no rows in result set" test=true
+time="2025-06-08T20:11:55-07:00" level=error msg="User not found by socialIDsql: no rows in result set" test=true
+time="2025-06-08T20:11:55-07:00" level=error msg="GetUserBySocialID Errorsql: no rows in result set" test=true
+time="2025-06-08T20:11:55-07:00" level=error msg="User not found by socialIDsql: no rows in result set" test=true
+time="2025-06-08T20:11:55-07:00" level=error msg="GetUserBySocialID Errorsql: no rows in result set" test=true
+time="2025-06-08T20:11:55-07:00" level=error msg="User not found by socialIDsql: no rows in result set" test=true
+--- FAIL: TestGetItemsByMeetingErrors (0.00s)
+    items_test.go:791: Unexpected error when getting items for non-existent meeting: sql: no rows in result set
+time="2025-06-08T20:11:55-07:00" level=info msg="CreateOrg affected users: 1" test=true
+time="2025-06-08T20:11:55-07:00" level=info msg="CreateOrg affected users: 1" test=true
+time="2025-06-08T20:11:55-07:00" level=info msg="CreateOrg affected users: 1" test=true
+FAIL
+coverage: 51.3% of statements
+FAIL	lowerthirdsapi/internal/storage	0.698s
+FAIL

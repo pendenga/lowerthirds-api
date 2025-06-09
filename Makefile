@@ -1,4 +1,4 @@
-.PHONY: test
+.PHONY: test test-coverage
 ROOT_DIR = $(shell pwd)
 GOPATH:=$(shell go env GOPATH)
 
@@ -17,6 +17,15 @@ run-cgi:
 	go build -o ./build/public/lowerthirds.fcgi ./cgi/lowerthirds-api/main.go
 	rm -rf vendor
 
-
+# Run all tests
 test:
-	go test ./...
+	go test -v ./...
+
+# Run tests with coverage
+test-coverage:
+	go test -v -coverprofile=coverage.out ./...
+	go tool cover -html=coverage.out -o coverage.html
+
+# Clean up coverage files
+clean:
+	rm -f coverage.out coverage.html

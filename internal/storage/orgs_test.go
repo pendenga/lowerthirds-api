@@ -1,11 +1,8 @@
 package storage
 
 import (
-	"lowerthirdsapi/internal/entities"
-	"lowerthirdsapi/internal/storage/testutil"
+	"lowerthirdsapi/internal/testutil"
 	"testing"
-
-	"github.com/google/uuid"
 )
 
 func TestCreateAndGetOrganization(t *testing.T) {
@@ -14,21 +11,11 @@ func TestCreateAndGetOrganization(t *testing.T) {
 
 	service := New(testutil.TestDB, testutil.TestLogger)
 
-	// Create test organization
-	orgID := uuid.New()
-	org := &entities.Organization{
-		OrgID: orgID,
-		Name:  "Test Organization 2",
-	}
-
-	// Test CreateOrg
-	err := service.CreateOrg(testutil.TestCtx, org)
-	if err != nil {
-		t.Fatalf("CreateOrg failed: %v", err)
-	}
+	// Setup test data
+	_, org, _ := testutil.CreateTestData(t, service)
 
 	// Test GetOrg
-	retrievedOrg, err := service.GetOrg(testutil.TestCtx, orgID)
+	retrievedOrg, err := service.GetOrg(testutil.TestCtx, org.OrgID)
 	if err != nil {
 		t.Fatalf("GetOrg failed: %v", err)
 	}

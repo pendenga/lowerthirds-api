@@ -1,0 +1,27 @@
+=== RUN   TestCreateAndGetItem
+time="2025-06-08T18:06:47-07:00" level=info msg="CreateOrg affected users: 1" test=true
+--- PASS: TestCreateAndGetItem (0.04s)
+=== RUN   TestDeleteItem
+time="2025-06-08T18:06:47-07:00" level=info msg="CreateOrg affected users: 1" test=true
+time="2025-06-08T18:06:47-07:00" level=info msg="DeleteItems affectedRows rows: 1" test=true
+--- PASS: TestDeleteItem (0.01s)
+=== RUN   TestUpdateItem
+time="2025-06-08T18:06:47-07:00" level=info msg="CreateOrg affected users: 1" test=true
+time="2025-06-08T18:06:47-07:00" level=info msg="[updateBlankItem] affected rows: 1" test=true
+--- PASS: TestUpdateItem (0.02s)
+=== RUN   TestGetItemsByMeeting
+time="2025-06-08T18:06:47-07:00" level=info msg="CreateOrg affected users: 1" test=true
+    items_test.go:187: Item 0: Type=*entities.BlankItem, ID=959dcc7b-8795-4aa0-aad9-92be54ae49ad
+    items_test.go:187: Item 1: Type=*entities.BlankItem, ID=959dcc7b-8795-4aa0-aad9-92be54ae49ad
+--- PASS: TestGetItemsByMeeting (0.01s)
+=== RUN   TestCreateAndGetMeeting
+time="2025-06-08T18:06:47-07:00" level=info msg="CreateOrg affected users: 1" test=true
+--- PASS: TestCreateAndGetMeeting (0.01s)
+=== RUN   TestCreateAndGetOrganization
+time="2025-06-08T18:06:47-07:00" level=info msg="CreateOrg affected users: 1" test=true
+--- PASS: TestCreateAndGetOrganization (0.01s)
+=== RUN   TestCreateAndGetUser
+time="2025-06-08T18:06:47-07:00" level=info msg="CreateOrg affected users: 1" test=true
+--- PASS: TestCreateAndGetUser (0.01s)
+PASS
+ok  	lowerthirdsapi/internal/storage	0.602s

@@ -1,12 +1,8 @@
 package storage
 
 import (
-	"lowerthirdsapi/internal/entities"
-	"lowerthirdsapi/internal/storage/testutil"
+	"lowerthirdsapi/internal/testutil"
 	"testing"
-
-	"github.com/google/uuid"
-	"gopkg.in/guregu/null.v4"
 )
 
 func TestCreateAndGetUser(t *testing.T) {
@@ -15,24 +11,11 @@ func TestCreateAndGetUser(t *testing.T) {
 
 	service := New(testutil.TestDB, testutil.TestLogger)
 
-	// Create test user
-	userID := uuid.New()
-	user := &entities.User{
-		UserID:    userID,
-		SocialID:  null.StringFrom("test-social-id-2"),
-		Email:     "test2@example.com",
-		FirstName: null.StringFrom("Test2"),
-		LastName:  null.StringFrom("User2"),
-	}
-
-	// Test CreateUser
-	err := service.CreateUser(testutil.TestCtx, user)
-	if err != nil {
-		t.Fatalf("CreateUser failed: %v", err)
-	}
+	// Setup test data
+	user, _, _ := testutil.CreateTestData(t, service)
 
 	// Test GetUser
-	retrievedUser, err := service.GetUser(testutil.TestCtx, userID)
+	retrievedUser, err := service.GetUser(testutil.TestCtx, user.UserID)
 	if err != nil {
 		t.Fatalf("GetUser failed: %v", err)
 	}

@@ -2,14 +2,28 @@ package storage
 
 import (
 	"context"
-	"github.com/google/uuid"
+	"database/sql"
+	"errors"
 	"lowerthirdsapi/internal/entities"
 	"lowerthirdsapi/internal/helpers"
 	"sort"
+
+	"github.com/google/uuid"
+	"gopkg.in/guregu/null.v4"
 )
 
 func (s lowerThirdsService) CreateItem(ctx context.Context, item entities.Item) error {
-	socialID := ctx.Value(helpers.SocialIDKey).(string)
+	if ctx == nil {
+		return errors.New("context is required")
+	}
+	if item == nil {
+		return errors.New("item is required")
+	}
+
+	socialID, ok := ctx.Value(helpers.SocialIDKey).(string)
+	if !ok {
+		return errors.New("socialID is required in context")
+	}
 	s.logger.Debug("[CreateItem] for socialID ", socialID)
 	s.logger.Debugf("[CreateItem] %+v", item)
 
@@ -24,7 +38,7 @@ func (s lowerThirdsService) CreateItem(ctx context.Context, item entities.Item) 
 		if err != nil {
 			s.logger.Error("error creating blankItem ", err)
 			return err
-			}
+		}
 	case *entities.LyricsItem:
 		if v.LyricsItemID == uuid.Nil {
 			v.LyricsItemID = uuid.New()
@@ -34,7 +48,7 @@ func (s lowerThirdsService) CreateItem(ctx context.Context, item entities.Item) 
 		if err != nil {
 			s.logger.Error("error creating lyricsItem ", err)
 			return err
-			}
+		}
 	case *entities.MessageItem:
 		if v.MessageItemID == uuid.Nil {
 			v.MessageItemID = uuid.New()
@@ -44,7 +58,7 @@ func (s lowerThirdsService) CreateItem(ctx context.Context, item entities.Item) 
 		if err != nil {
 			s.logger.Error("error creating messageItem ", err)
 			return err
-			}
+		}
 	case *entities.SpeakerItem:
 		if v.SpeakerItemID == uuid.Nil {
 			v.SpeakerItemID = uuid.New()
@@ -54,7 +68,7 @@ func (s lowerThirdsService) CreateItem(ctx context.Context, item entities.Item) 
 		if err != nil {
 			s.logger.Error("error creating speakerItem ", err)
 			return err
-			}
+		}
 	case *entities.TimerItem:
 		if v.TimerItemID == uuid.Nil {
 			v.TimerItemID = uuid.New()
@@ -64,9 +78,9 @@ func (s lowerThirdsService) CreateItem(ctx context.Context, item entities.Item) 
 		if err != nil {
 			s.logger.Error("error creating timerItem ", err)
 			return err
-			}
+		}
 	default:
-		s.logger.Debugf("[CreateItem] default %+v", v)
+		return errors.New("unsupported item type")
 	}
 	return nil
 }
@@ -137,6 +151,9 @@ func (s lowerThirdsService) GetItem(ctx context.Context, itemID uuid.UUID) (enti
 		return nil, err
 	}
 	if blankItem != nil {
+		if blankItem.ItemType != "blank" {
+			return nil, errors.New("invalid item type")
+		}
 		return blankItem, nil
 	}
 	messageItem, err := s.getMessageItemByID(user.UserID, itemID)
@@ -145,6 +162,9 @@ func (s lowerThirdsService) GetItem(ctx context.Context, itemID uuid.UUID) (enti
 		return nil, err
 	}
 	if messageItem != nil {
+		if messageItem.ItemType != "message" {
+			return nil, errors.New("invalid item type")
+		}
 		return messageItem, nil
 	}
 	speakerItem, err := s.getSpeakerItemByID(user.UserID, itemID)
@@ -153,6 +173,9 @@ func (s lowerThirdsService) GetItem(ctx context.Context, itemID uuid.UUID) (enti
 		return nil, err
 	}
 	if speakerItem != nil {
+		if speakerItem.ItemType != "speaker" {
+			return nil, errors.New("invalid item type")
+		}
 		return speakerItem, nil
 	}
 	lyricsItem, err := s.getLyricsItemByID(user.UserID, itemID)
@@ -161,6 +184,9 @@ func (s lowerThirdsService) GetItem(ctx context.Context, itemID uuid.UUID) (enti
 		return nil, err
 	}
 	if lyricsItem != nil {
+		if lyricsItem.ItemType != "lyrics" {
+			return nil, errors.New("invalid item type")
+		}
 		return lyricsItem, nil
 	}
 	timerItem, err := s.getTimerItemByID(user.UserID, itemID)
@@ -169,13 +195,195 @@ func (s lowerThirdsService) GetItem(ctx context.Context, itemID uuid.UUID) (enti
 		return nil, err
 	}
 	if timerItem != nil {
+		if timerItem.ItemType != "timer" {
+			return nil, errors.New("invalid item type")
+		}
 		return timerItem, nil
 	}
-	return nil, nil
+	return nil, errors.New("item not found")
+}
+
+func (s lowerThirdsService) getAllItemsByUser(userID uuid.UUID) ([]entities.Item, error) {
+	s.logger.Debug("getAllItemsByUser for userID ", userID)
+
+	query := `
+		WITH user_meetings AS (
+			SELECT m.id as meeting_id
+			FROM OrgUsers ou
+			INNER JOIN Users u ON u.id = ou.user_id AND u.deleted_dt IS NULL
+			INNER JOIN Organization o ON o.id = ou.org_id AND o.deleted_dt IS NULL
+			INNER JOIN Meetings m ON m.org_id = ou.org_id AND m.deleted_dt IS NULL
+			WHERE ou.user_id = ? AND ou.deleted_dt IS NULL
+		)
+		SELECT 
+			id, meeting_id, meeting_role, item_type, item_order,
+			NULL as primary_text, NULL as secondary_text,
+			NULL as speaker_name, NULL as title, NULL as expected_duration,
+			NULL as hymn_id, NULL as show_translation,
+			NULL as show_meeting_details,
+			'blank' as source_table
+		FROM BlankItems
+		WHERE meeting_id IN (SELECT meeting_id FROM user_meetings)
+		AND deleted_dt IS NULL
+		UNION ALL
+		SELECT 
+			id, meeting_id, meeting_role, item_type, item_order,
+			primary_text, secondary_text,
+			NULL as speaker_name, NULL as title, NULL as expected_duration,
+			NULL as hymn_id, NULL as show_translation,
+			NULL as show_meeting_details,
+			'message' as source_table
+		FROM MessageItems
+		WHERE meeting_id IN (SELECT meeting_id FROM user_meetings)
+		AND deleted_dt IS NULL
+		UNION ALL
+		SELECT 
+			id, meeting_id, meeting_role, item_type, item_order,
+			NULL as primary_text, NULL as secondary_text,
+			speaker_name, title, expected_duration,
+			NULL as hymn_id, NULL as show_translation,
+			NULL as show_meeting_details,
+			'speaker' as source_table
+		FROM SpeakerItems
+		WHERE meeting_id IN (SELECT meeting_id FROM user_meetings)
+		AND deleted_dt IS NULL
+		UNION ALL
+		SELECT 
+			id, meeting_id, meeting_role, item_type, item_order,
+			NULL as primary_text, NULL as secondary_text,
+			NULL as speaker_name, NULL as title, NULL as expected_duration,
+			hymn_id, show_translation,
+			NULL as show_meeting_details,
+			'lyrics' as source_table
+		FROM LyricsItems
+		WHERE meeting_id IN (SELECT meeting_id FROM user_meetings)
+		AND deleted_dt IS NULL
+		UNION ALL
+		SELECT 
+			id, meeting_id, meeting_role, item_type, item_order,
+			NULL as primary_text, NULL as secondary_text,
+			NULL as speaker_name, NULL as title, NULL as expected_duration,
+			NULL as hymn_id, NULL as show_translation,
+			show_meeting_details,
+			'timer' as source_table
+		FROM TimerItems
+		WHERE meeting_id IN (SELECT meeting_id FROM user_meetings)
+		AND deleted_dt IS NULL
+		ORDER BY item_order`
+
+	rows, err := s.MySqlDB.Query(query, userID)
+	if err != nil {
+		s.logger.Error("Error querying all items: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var items []entities.Item
+	for rows.Next() {
+		var (
+			id                 uuid.UUID
+			meetingID          uuid.UUID
+			meetingRole        string
+			itemType           string
+			itemOrder          int
+			primaryText        sql.NullString
+			secondaryText      sql.NullString
+			speakerName        sql.NullString
+			title              sql.NullString
+			expectedDuration   sql.NullInt32
+			hymnID             sql.NullString
+			showTranslation    sql.NullBool
+			showMeetingDetails sql.NullBool
+			sourceTable        string
+		)
+
+		err := rows.Scan(
+			&id, &meetingID, &meetingRole, &itemType, &itemOrder,
+			&primaryText, &secondaryText,
+			&speakerName, &title, &expectedDuration,
+			&hymnID, &showTranslation,
+			&showMeetingDetails,
+			&sourceTable,
+		)
+		if err != nil {
+			s.logger.Error("Error scanning row: ", err)
+			return nil, err
+		}
+
+		switch sourceTable {
+		case "blank":
+			items = append(items, &entities.BlankItem{
+				BlankItemID: id,
+				MeetingID:   meetingID,
+				ItemType:    itemType,
+				ItemOrder:   itemOrder,
+				MeetingRole: meetingRole,
+			})
+		case "message":
+			items = append(items, &entities.MessageItem{
+				MessageItemID: id,
+				MeetingID:     meetingID,
+				ItemType:      itemType,
+				ItemOrder:     itemOrder,
+				MeetingRole:   meetingRole,
+				PrimaryText:   primaryText.String,
+				SecondaryText: null.StringFromPtr(&secondaryText.String),
+			})
+		case "speaker":
+			var expectedDurationPtr *int64
+			if expectedDuration.Valid {
+				duration := int64(expectedDuration.Int32)
+				expectedDurationPtr = &duration
+			}
+			items = append(items, &entities.SpeakerItem{
+				SpeakerItemID:    id,
+				MeetingID:        meetingID,
+				ItemType:         itemType,
+				ItemOrder:        itemOrder,
+				MeetingRole:      meetingRole,
+				SpeakerName:      speakerName.String,
+				Title:            null.StringFromPtr(&title.String),
+				ExpectedDuration: null.IntFromPtr(expectedDurationPtr),
+			})
+		case "lyrics":
+			items = append(items, &entities.LyricsItem{
+				LyricsItemID:    id,
+				MeetingID:       meetingID,
+				ItemType:        itemType,
+				ItemOrder:       itemOrder,
+				MeetingRole:     meetingRole,
+				HymnID:          hymnID.String,
+				ShowTranslation: showTranslation.Bool,
+			})
+		case "timer":
+			items = append(items, &entities.TimerItem{
+				TimerItemID:        id,
+				MeetingID:          meetingID,
+				ItemType:           itemType,
+				ItemOrder:          itemOrder,
+				MeetingRole:        meetingRole,
+				ShowMeetingDetails: showMeetingDetails.Bool,
+			})
+		}
+	}
+
+	if err = rows.Err(); err != nil {
+		s.logger.Error("Error iterating rows: ", err)
+		return nil, err
+	}
+
+	return items, nil
 }
 
 func (s lowerThirdsService) GetItems(ctx context.Context) (*[]entities.Item, error) {
-	socialID := ctx.Value(helpers.SocialIDKey).(string)
+	if ctx == nil {
+		return nil, errors.New("context is required")
+	}
+
+	socialID, ok := ctx.Value(helpers.SocialIDKey).(string)
+	if !ok {
+		return nil, errors.New("socialID is required in context")
+	}
 	s.logger.Debug("GetItems for socialID ", socialID)
 	user, err := s.GetUserBySocialID(ctx, socialID)
 	if err != nil {
@@ -184,61 +392,24 @@ func (s lowerThirdsService) GetItems(ctx context.Context) (*[]entities.Item, err
 	}
 	s.logger.Debug("GetItems for userID ", user.UserID)
 
-	// Query each type of item separately
-	blankItems, err := s.getBlankItemsByUser(user.UserID)
-	if err != nil {
-		s.logger.Error(err)
-		return nil, err
-	}
-	messageItems, err := s.getMessageItemsByUser(user.UserID)
-	if err != nil {
-		s.logger.Error(err)
-		return nil, err
-	}
-	speakerItems, err := s.getSpeakerItemsByUser(user.UserID)
-	if err != nil {
-		s.logger.Error(err)
-		return nil, err
-	}
-	lyricsItems, err := s.getLyricsItemsByUser(user.UserID)
-	if err != nil {
-		s.logger.Error(err)
-		return nil, err
-	}
-	timerItems, err := s.getTimerItemsByUser(user.UserID)
+	items, err := s.getAllItemsByUser(user.UserID)
 	if err != nil {
 		s.logger.Error(err)
 		return nil, err
 	}
 
-	// Combine in an Item interface set
-	var allItems []entities.Item
-	for _, b := range blankItems {
-		allItems = append(allItems, b)
-	}
-	for _, m := range messageItems {
-		allItems = append(allItems, m)
-	}
-	for _, s := range speakerItems {
-		allItems = append(allItems, s)
-	}
-	for _, l := range lyricsItems {
-		allItems = append(allItems, l)
-	}
-	for _, t := range timerItems {
-		allItems = append(allItems, t)
-	}
-
-	// Sort items by GetOrder
-	sort.Slice(allItems, func(i, j int) bool {
-		return allItems[i].GetOrder() < allItems[j].GetOrder()
-	})
-
-	return &allItems, nil
+	return &items, nil
 }
 
 func (s lowerThirdsService) GetItemsByMeeting(ctx context.Context, meetingID uuid.UUID) (*[]entities.Item, error) {
-	socialID := ctx.Value(helpers.SocialIDKey).(string)
+	if ctx == nil {
+		return nil, errors.New("context is required")
+	}
+
+	socialID, ok := ctx.Value(helpers.SocialIDKey).(string)
+	if !ok {
+		return nil, errors.New("socialID is required in context")
+	}
 	s.logger.Debug("GetItem for socialID ", socialID, " meetingID ", meetingID)
 	user, err := s.GetUserBySocialID(ctx, socialID)
 	if err != nil {
@@ -277,19 +448,19 @@ func (s lowerThirdsService) GetItemsByMeeting(ctx context.Context, meetingID uui
 	// Combine in an Item interface set
 	var allItems []entities.Item
 	for _, b := range blankItems {
-		allItems = append(allItems, b)
+		allItems = append(allItems, &b)
 	}
 	for _, m := range messageItems {
-		allItems = append(allItems, m)
+		allItems = append(allItems, &m)
 	}
 	for _, s := range speakerItems {
-		allItems = append(allItems, s)
+		allItems = append(allItems, &s)
 	}
 	for _, l := range lyricsItems {
-		allItems = append(allItems, l)
+		allItems = append(allItems, &l)
 	}
 	for _, t := range timerItems {
-		allItems = append(allItems, t)
+		allItems = append(allItems, &t)
 	}
 
 	// Sort items by GetOrder
@@ -318,7 +489,7 @@ func (s lowerThirdsService) UpdateItem(ctx context.Context, itemID uuid.UUID, it
 			s.logger.Error("error updating blankItem ", err)
 			return err
 		}
-		break
+		return nil
 	case *entities.LyricsItem:
 		if v.LyricsItemID == uuid.Nil {
 			v.LyricsItemID = itemID
@@ -328,7 +499,7 @@ func (s lowerThirdsService) UpdateItem(ctx context.Context, itemID uuid.UUID, it
 			s.logger.Error("error updating lyricsItem ", err)
 			return err
 		}
-		break
+		return nil
 	case *entities.MessageItem:
 		if v.MessageItemID == uuid.Nil {
 			v.MessageItemID = itemID
@@ -338,7 +509,7 @@ func (s lowerThirdsService) UpdateItem(ctx context.Context, itemID uuid.UUID, it
 			s.logger.Error("error updating messageItem ", err)
 			return err
 		}
-		break
+		return nil
 	case *entities.SpeakerItem:
 		if v.SpeakerItemID == uuid.Nil {
 			v.SpeakerItemID = itemID
@@ -348,7 +519,7 @@ func (s lowerThirdsService) UpdateItem(ctx context.Context, itemID uuid.UUID, it
 			s.logger.Error("error updating speakerItem ", err)
 			return err
 		}
-		break
+		return nil
 	case *entities.TimerItem:
 		if v.TimerItemID == uuid.Nil {
 			v.TimerItemID = itemID
@@ -358,7 +529,7 @@ func (s lowerThirdsService) UpdateItem(ctx context.Context, itemID uuid.UUID, it
 			s.logger.Error("error updating timerItem ", err)
 			return err
 		}
-		break
+		return nil
 	}
-	return nil
+	return errors.New("unsupported item type")
 }

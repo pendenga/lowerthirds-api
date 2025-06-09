@@ -3,8 +3,9 @@ package storage
 import (
 	"database/sql"
 	"errors"
-	"github.com/google/uuid"
 	"lowerthirdsapi/internal/entities"
+
+	"github.com/google/uuid"
 )
 
 func (s lowerThirdsService) createMessageItem(d *entities.MessageItem) error {
@@ -110,6 +111,9 @@ func (s lowerThirdsService) getMessageItemsByMeeting(userID uuid.UUID, meetingID
           AND ou.deleted_dt IS NULL`,
 		meetingID,
 		userID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return []entities.MessageItem{}, nil
+	}
 	if err != nil {
 		s.logger.Error(err)
 		return nil, err
@@ -174,8 +178,13 @@ func (s lowerThirdsService) updateMessageItem(messageItemID uuid.UUID, d *entiti
 		return err
 	}
 	affectedRows, err := result.RowsAffected()
-	if err == nil {
-		s.logger.Info("updateMessageItem affected rows: ", affectedRows)
+	if err != nil {
+		s.logger.Error("updateMessageItem Error getting affected rows", err)
+		return err
+	}
+	s.logger.Info("updateMessageItem affected rows: ", affectedRows)
+	if affectedRows == 0 {
+		return errors.New("sql: no rows in result set")
 	}
 	return nil
 }

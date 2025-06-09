@@ -2,7 +2,7 @@ package storage
 
 import (
 	"lowerthirdsapi/internal/entities"
-	"lowerthirdsapi/internal/storage/testutil"
+	"lowerthirdsapi/internal/testutil"
 	"testing"
 	"time"
 
@@ -16,12 +16,14 @@ func TestCreateAndGetMeeting(t *testing.T) {
 
 	service := New(testutil.TestDB, testutil.TestLogger)
 
+	// Setup test data
+	_, org, _ := testutil.CreateTestData(t, service)
+
 	// Create test meeting
 	meetingID := uuid.New()
-	orgID := uuid.New()
 	meeting := &entities.Meeting{
 		MeetingID:   meetingID,
-		OrgID:       orgID,
+		OrgID:       org.OrgID,
 		Conference:  null.StringFrom("Test Conference 2"),
 		Meeting:     "Test Meeting 2",
 		MeetingDate: time.Now(),

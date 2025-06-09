@@ -2,8 +2,9 @@ package entities
 
 import (
 	"encoding/json"
-	"github.com/google/uuid"
 	"testing"
+
+	"github.com/google/uuid"
 )
 
 func TestBlankItemUnmarshal(t *testing.T) {
@@ -104,9 +105,9 @@ func TestParseItemJSON_BlankItem(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ParseItemJSON failed: %v", err)
 	}
-	blank, ok := item.(BlankItem)
+	blank, ok := item.(*BlankItem)
 	if !ok {
-		t.Fatalf("expected BlankItem, got %T", item)
+		t.Fatalf("expected *BlankItem, got %T", item)
 	}
 	if blank.BlankItemID != uuid.MustParse("11111111-1111-1111-1111-111111111111") {
 		t.Errorf("unexpected BlankItemID: %v", blank.BlankItemID)

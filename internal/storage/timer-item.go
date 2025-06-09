@@ -3,8 +3,9 @@ package storage
 import (
 	"database/sql"
 	"errors"
-	"github.com/google/uuid"
 	"lowerthirdsapi/internal/entities"
+
+	"github.com/google/uuid"
 )
 
 func (s lowerThirdsService) createTimerItem(d *entities.TimerItem) error {
@@ -108,6 +109,9 @@ func (s lowerThirdsService) getTimerItemsByMeeting(userID uuid.UUID, meetingID u
           AND ou.deleted_dt IS NULL`,
 		meetingID,
 		userID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return []entities.TimerItem{}, nil
+	}
 	if err != nil {
 		s.logger.Error(err)
 		return nil, err
@@ -170,8 +174,13 @@ func (s lowerThirdsService) updateTimerItem(timerItemID uuid.UUID, d *entities.T
 		return err
 	}
 	affectedRows, err := result.RowsAffected()
-	if err == nil {
-		s.logger.Info("updateTimerItem affected rows: ", affectedRows)
+	if err != nil {
+		s.logger.Error("updateTimerItem Error getting affected rows", err)
+		return err
+	}
+	s.logger.Info("updateTimerItem affected rows: ", affectedRows)
+	if affectedRows == 0 {
+		return errors.New("sql: no rows in result set")
 	}
 	return nil
 }

@@ -2,13 +2,14 @@ package server
 
 import (
 	"encoding/json"
-	"github.com/go-sql-driver/mysql"
-	"github.com/google/uuid"
-	"github.com/gorilla/mux"
 	"io"
 	"lowerthirdsapi/internal/entities"
 	"lowerthirdsapi/internal/helpers"
 	"net/http"
+
+	"github.com/go-sql-driver/mysql"
+	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 )
 
 func (s *Server) deleteItem() http.Handler {
