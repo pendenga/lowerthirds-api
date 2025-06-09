@@ -42,9 +42,7 @@ func (s *Server) Route() {
 		Route{"getOrgUsers", "GET", "/v1/orgs/{OrgID}/users", s.getUsersByOrg()},
 
 		// items
-		Route{"getItems", "GET", "/v1/items", s.getItems()}, // need this? Should just get items by meeting or by id
 		Route{"postItem", "POST", "/v1/items", s.postItem()},
-		Route{"getItem", "GET", "/v1/items/{ItemID}", s.getItem()},
 		Route{"updateItem", "PUT", "/v1/items/{ItemID}", s.updateItem()},
 		Route{"deleteItem", "DELETE", "/v1/items/{ItemID}", s.deleteItem()},
 

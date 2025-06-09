@@ -29,59 +29,7 @@ func (s *Server) deleteItem() http.Handler {
 			return
 		}
 
-		w.WriteHeader(http.StatusOK) // 200 OK
-	})
-}
-
-func (s *Server) getItems() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		ctx := req.Context()
-		items, err := s.lowerThirdsService.GetItems(ctx)
-		if err != nil {
-			s.Logger.Error(err)
-			helpers.WriteError(ctx, err, w)
-			return
-		}
-
-		w.WriteHeader(http.StatusOK)
-		err = json.NewEncoder(w).Encode(items)
-		if err != nil {
-			s.Logger.Error(err)
-			helpers.WriteError(ctx, err, w)
-		}
-	})
-}
-
-func (s *Server) getItem() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		ctx := req.Context()
-
-		itemID, err := uuid.Parse(mux.Vars(req)["ItemID"])
-		if err != nil {
-			s.Logger.Error("[getItem] error ", err)
-			helpers.WriteError(ctx, err, w)
-			return
-		}
-
-		item, err := s.lowerThirdsService.GetItem(ctx, itemID)
-		if err != nil {
-			s.Logger.Error(err)
-			helpers.WriteError(ctx, err, w)
-			return
-		}
-
-		if item == nil {
-			s.Logger.Error("[getItem] item not found ", itemID)
-			w.WriteHeader(http.StatusNotFound)
-			return
-		}
-
-		w.WriteHeader(http.StatusOK)
-		err = json.NewEncoder(w).Encode(item)
-		if err != nil {
-			s.Logger.Error(err)
-			helpers.WriteError(ctx, err, w)
-		}
+		w.WriteHeader(http.StatusNoContent) // 204 No Content
 	})
 }
 

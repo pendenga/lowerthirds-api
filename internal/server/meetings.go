@@ -29,7 +29,7 @@ func (s *Server) deleteMeeting() http.Handler {
 			return
 		}
 
-		w.WriteHeader(http.StatusOK) // 200 OK
+		w.WriteHeader(http.StatusNoContent) // 204 No Content
 	})
 }
 

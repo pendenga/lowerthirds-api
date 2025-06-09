@@ -33,7 +33,7 @@ func (s *Server) deleteOrg() http.Handler {
 			return
 		}
 
-		w.WriteHeader(http.StatusOK) // 200 OK
+		w.WriteHeader(http.StatusNoContent) // 204 No Content
 	})
 }
 
