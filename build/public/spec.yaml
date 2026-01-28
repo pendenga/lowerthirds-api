@@ -68,7 +68,7 @@ paths:
         - Items
       summary: Get item
       description: Get item
-      operationId: getSlid
+      operationId: getItem
       parameters:
         - $ref: "#/components/parameters/itemId"
       responses:
