@@ -14,7 +14,7 @@ tags:
   - name: Orgs
     description: Details about orgs
   - name: Items
-    description: Details about orgs
+    description: Details about items
   - name: Users
     description: Manage users
 paths:
@@ -559,6 +559,7 @@ components:
         - id
         - type
         - order
+        - meeting_id
         - meeting_role
         - hymn_id
       properties:
@@ -568,6 +569,8 @@ components:
           $ref: '#/components/schemas/ItemType'
         order:
           $ref: '#/components/schemas/Order'
+        meeting_id:
+          $ref: '#/components/schemas/ID'
         meeting_role:
           $ref: '#/components/schemas/MeetingRole'
         hymn_id:
@@ -575,6 +578,7 @@ components:
         show_translation:
           type: boolean
           default: false
+          example: true
     Meeting:
       type: object
       required:
@@ -606,6 +610,7 @@ components:
       description: Blank item definition
       required:
         - id
+        - meeting_id
         - type
         - order
         - meeting_role
@@ -617,6 +622,8 @@ components:
           $ref: '#/components/schemas/ItemType'
         order:
           $ref: '#/components/schemas/Order'
+        meeting_id:
+          $ref: '#/components/schemas/ID'
         meeting_role:
           $ref: '#/components/schemas/MeetingRole'
         primary_text:
@@ -639,6 +646,14 @@ components:
         name:
           type: string
           example: Mesa Flatiron Stake
+        user_ids:
+          type: array
+          items:
+            type: string
+          example:
+            - 3cd5fe4e-9ecb-4ec2-b7c7-0d19288c08e0
+            - 78db4a21-968b-482f-b970-bdf0e8b30114
+            - a5659535-43a8-486d-9b68-1da5d3fdee06
     ItemType:
       title: Item Type
       description: Item Type
@@ -654,6 +669,7 @@ components:
       description: Speaker item definition
       required:
         - id
+        - meeting_id
         - type
         - order
         - meeting_role
@@ -666,17 +682,23 @@ components:
           $ref: '#/components/schemas/ItemType'
         order:
           $ref: '#/components/schemas/Order'
+        meeting_id:
+          $ref: '#/components/schemas/ID'
         meeting_role:
           $ref: '#/components/schemas/MeetingRole'
         name:
           $ref: '#/components/schemas/Name'
         title:
           $ref: '#/components/schemas/Title'
+        expected_duration:
+          type: integer
+          example: 5
     TimerItem:
       type: object
       description: Blank item definition
       required:
         - id
+        - meeting_id
         - type
         - order
         - meeting_role
@@ -684,6 +706,8 @@ components:
         - show_meeting_details
       properties:
         id:
+          $ref: '#/components/schemas/ID'
+        meeting_id:
           $ref: '#/components/schemas/ID'
         type:
           $ref: '#/components/schemas/ItemType'
@@ -693,7 +717,7 @@ components:
           $ref: '#/components/schemas/MeetingRole'
         show_meeting_details:
           type: boolean
-          default: false
+          example: false
     Title:
       type: string
       example: Stake President
