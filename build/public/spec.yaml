@@ -255,7 +255,7 @@ paths:
       operationId: postOrgs
       responses:
         '201':
-          $ref: '#/components/responses/orgs'
+          $ref: '#/components/responses/org'
         '400':
           description: 'invalid input, org invalid'
         '409':
