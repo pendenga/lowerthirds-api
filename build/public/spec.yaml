@@ -45,7 +45,7 @@ paths:
       operationId: postItem
       responses:
         '201':
-          description: item created
+          $ref: '#/components/responses/items'
         '400':
           description: 'invalid input, item invalid'
         '409':
@@ -148,7 +148,7 @@ paths:
       operationId: postMeetings
       responses:
         '201':
-          description: meeting created
+          $ref: '#/components/responses/meetings'
         '400':
           description: 'invalid input, meeting invalid'
         '409':
@@ -255,7 +255,7 @@ paths:
       operationId: postOrgs
       responses:
         '201':
-          description: org created
+          $ref: '#/components/responses/orgs'
         '400':
           description: 'invalid input, org invalid'
         '409':
@@ -499,7 +499,7 @@ paths:
               $ref: '#/components/schemas/IDList'
       responses:
         '201':
-          description: orgs set for user
+          $ref: '#/components/responses/orgs'
         '400':
           description: 'invalid input, orgs invalid'
         '409':
