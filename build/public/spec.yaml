@@ -524,8 +524,8 @@ components:
       items:
         $ref: '#/components/schemas/ID'
       example: [7e0981a5-1159-4e4e-9057-c17817f442ee, 29755439-5bd6-4e17-ae67-156fb2441e34]
-    Item:
-      description: One item of a specific type
+    AgendaItem:
+      description: One agenda item of a specific type
       oneOf:
         - $ref: '#/components/schemas/BlankItem'
         - $ref: '#/components/schemas/LyricsItem'
@@ -540,11 +540,11 @@ components:
           message: '#/components/schemas/MessageItem'
           speaker: '#/components/schemas/SpeakerItem'
           timer: '#/components/schemas/TimerItem'
-    Items:
-      description: A list of items
+    AgendaItems:
+      description: A list of agenda items
       type: array
       items:
-        $ref: '#/components/schemas/Item'
+        $ref: '#/components/schemas/AgendaItem'
     ItemType:
       description: Item Type
       type: string
@@ -609,7 +609,7 @@ components:
         duration:
           $ref: '#/components/schemas/Duration'
         agenda_items:
-          $ref: '#/components/schemas/Items'
+          $ref: '#/components/schemas/AgendaItems'
     MeetingRole:
       type: string
       description: Description of what this item is for in the meeting
@@ -848,13 +848,13 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Item'
+            $ref: '#/components/schemas/AgendaItem'
     items:
       description: A list of items
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Items'
+            $ref: '#/components/schemas/AgendaItems'
     lyricsItem:
       description: A single lyrics item
       content:
