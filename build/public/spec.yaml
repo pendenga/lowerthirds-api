@@ -3,9 +3,9 @@ servers:
   - description: Lower Thirds API
     url: https://api.lower3.com/v1
 info:
-  description: Lower Thirds
-  version: "1.0.0"
   title: Lower Thirds
+  description: App for managing meeting agendas and generating lower thirds for virtual meetings
+  version: "1.0.0"
   contact:
     email: pendenga@gmail.com
 tags:
