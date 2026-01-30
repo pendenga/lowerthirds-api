@@ -505,9 +505,9 @@ components:
       description: A date in ISO 8601 format
       format: date-time
       example: 2025-08-29T09:12:33.001Z
-    Duration:
+    ExpectedDuration:
       type: integer
-      description: Duration in minutes
+      description: Expected duration in minutes
       example: 5
     HymnID:
       type: string
@@ -610,8 +610,8 @@ components:
           example: General Session
         date:
           $ref: '#/components/schemas/Date'
-        duration:
-          $ref: '#/components/schemas/Duration'
+        expected_duration:
+          $ref: '#/components/schemas/ExpectedDuration'
         agenda_items:
           $ref: '#/components/schemas/AgendaItems'
     MeetingRole:
