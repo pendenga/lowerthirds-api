@@ -22,8 +22,7 @@ paths:
     get:
       tags:
         - Items
-      summary: List of items
-      description: List of items
+      description: A list of items
       operationId: getItems
       parameters:
         - $ref: "#/components/parameters/meetingId"
@@ -40,7 +39,6 @@ paths:
     post:
       tags:
         - Items
-      summary: Creates an item
       description: Creates an item
       operationId: postItem
       responses:
@@ -66,7 +64,6 @@ paths:
     get:
       tags:
         - Items
-      summary: Get item
       description: Get item
       operationId: getItem
       parameters:
@@ -82,7 +79,6 @@ paths:
     put:
       tags:
         - Items
-      summary: Update an existing item
       description: Update an existing item
       operationId: updateItem
       parameters:
@@ -111,7 +107,6 @@ paths:
     delete:
       tags:
         - Items
-      summary: Delete an item
       description: Delete an item
       operationId: deleteItem
       parameters:
@@ -127,7 +122,6 @@ paths:
     get:
       tags:
         - Meetings
-      summary: List of meetings
       description: List of meetings
       operationId: getMeetings
       parameters:
@@ -143,7 +137,6 @@ paths:
     post:
       tags:
         - Meetings
-      summary: Creates a meeting
       description: Creates a meeting
       operationId: postMeetings
       responses:
@@ -164,7 +157,6 @@ paths:
     get:
       tags:
         - Meetings
-      summary: Get meeting
       description: Get meeting
       operationId: getMeeting
       parameters:
@@ -180,7 +172,6 @@ paths:
     put:
       tags:
         - Meetings
-      summary: Update an existing meeting
       description: Update an existing meeting
       operationId: updateMeeting
       parameters:
@@ -204,7 +195,6 @@ paths:
     delete:
       tags:
         - Meetings
-      summary: Delete a meeting
       description: Delete a meeting
       operationId: deleteMeeting
       parameters:
@@ -220,7 +210,6 @@ paths:
     get:
       tags:
         - Meetings
-      summary: List of items for a meeting
       description: List of items for a meeting
       operationId: getMeetingItems
       parameters:
@@ -236,7 +225,6 @@ paths:
     get:
       tags:
         - Orgs
-      summary: List of orgs
       description: List of orgs
       operationId: getOrgs
       parameters:
@@ -250,7 +238,6 @@ paths:
     post:
       tags:
         - Orgs
-      summary: Creates an org
       description: Creates an org
       operationId: postOrgs
       responses:
@@ -271,7 +258,6 @@ paths:
     get:
       tags:
         - Orgs
-      summary: Get org
       description: Get org
       operationId: getOrg
       parameters:
@@ -287,7 +273,6 @@ paths:
     put:
       tags:
         - Orgs
-      summary: Update an existing org
       description: Update an existing org
       operationId: updateOrg
       parameters:
@@ -311,7 +296,6 @@ paths:
     delete:
       tags:
         - Orgs
-      summary: Delete an org
       description: Delete an org
       operationId: deleteOrg
       parameters:
@@ -328,7 +312,6 @@ paths:
     get:
       tags:
         - Orgs
-      summary: List of meetings for an org
       description: List of meetings for an org
       operationId: meetingsListByOrg
       parameters:
@@ -346,7 +329,6 @@ paths:
     get:
       tags:
         - Orgs
-      summary: List of users for an org
       description: List of users for an org
       operationId: usersListByOrg
       parameters:
@@ -362,7 +344,6 @@ paths:
     get:
       tags:
         - Users
-      summary: Get all users
       description: Get all users
       operationId: getUsers
       parameters:
@@ -377,7 +358,6 @@ paths:
     post:
       tags:
         - Users
-      summary: Add a new user
       description: Add a new user
       operationId: addUser
       parameters: []
@@ -399,7 +379,6 @@ paths:
     get:
       tags:
         - Users
-      summary: Get user
       description: Get user
       operationId: getUser
       parameters:
@@ -415,7 +394,6 @@ paths:
     put:
       tags:
         - Users
-      summary: Update an existing user
       description: Update an existing user
       operationId: updateUser
       parameters:
@@ -439,7 +417,6 @@ paths:
     delete:
       tags:
         - Users
-      summary: Delete a User
       description: Delete a User
       operationId: deleteUser
       parameters:
@@ -455,7 +432,6 @@ paths:
     get:
       tags:
         - Users
-      summary: List of meetings for a user
       description: List of meetings for a user
       operationId: getUserMeetings
       parameters:
@@ -471,7 +447,6 @@ paths:
     get:
       tags:
         - Users
-      summary: List of orgs for a user
       description: List of orgs for a user
       operationId: getUserOrgs
       parameters:
@@ -486,7 +461,6 @@ paths:
     put:
       tags:
         - Users
-      summary: Sets the list of orgs for a user
       description: Sets the list of orgs for a user
       operationId: setUserOrgs
       parameters:
@@ -528,25 +502,59 @@ components:
           $ref: '#/components/schemas/MeetingRole'
     Date:
       type: string
+      description: A date in ISO 8601 format
       format: date-time
       example: 2025-08-29T09:12:33.001Z
     Duration:
       type: integer
+      description: Duration in minutes
       example: 5
     HymnID:
       type: string
+      description: Unique identifier for a hymn
       example: 5954ad1f70174bb0
     ID:
       type: string
+      description: ID in UUID format
       format: uuid
       example: 9c7b7971-5d35-4f32-8b5a-ffb93e8f6656
     IDList:
       type: array
+      description: A list of IDs in UUID format
       items:
         $ref: '#/components/schemas/ID'
       example: [7e0981a5-1159-4e4e-9057-c17817f442ee, 29755439-5bd6-4e17-ae67-156fb2441e34]
+    Item:
+      description: One item of a specific type
+      oneOf:
+        - $ref: '#/components/schemas/BlankItem'
+        - $ref: '#/components/schemas/LyricsItem'
+        - $ref: '#/components/schemas/MessageItem'
+        - $ref: '#/components/schemas/SpeakerItem'
+        - $ref: '#/components/schemas/TimerItem'
+      discriminator:
+        propertyName: ItemType
+        mapping:
+          blank: '#/components/schemas/BlankItem'
+          lyrics: '#/components/schemas/LyricsItem'
+          message: '#/components/schemas/MessageItem'
+          speaker: '#/components/schemas/SpeakerItem'
+          timer: '#/components/schemas/TimerItem'
+    Items:
+      description: A list of items
+      type: array
+      items:
+        $ref: '#/components/schemas/Item'
+    ItemType:
+      description: Item Type
+      type: string
+      enum:
+        - blank
+        - message
+        - speaker
+        - lyrics
+        - timer
     Language:
-      title: Language
       description: Language
       type: string
       enum:
@@ -581,6 +589,7 @@ components:
           example: true
     Meeting:
       type: object
+      description: Meeting item definition
       required:
         - org
         - meetingDate
@@ -599,11 +608,15 @@ components:
           $ref: '#/components/schemas/Date'
         duration:
           $ref: '#/components/schemas/Duration'
+        agenda_items:
+          $ref: '#/components/schemas/Items'
     MeetingRole:
       type: string
+      description: Description of what this item is for in the meeting
       example: Meeting intro
     Message:
       type: string
+      description: Description for the titles
       example: The broadcast has concluded
     MessageItem:
       type: object
@@ -632,12 +645,15 @@ components:
           $ref: '#/components/schemas/Message'
     Name:
       type: string
+      description: Name of the speaker or other participant
       example: President Gregory Knight
     Order:
       type: integer
+      description: Order of the item in the meeting agenda
       example: 0
     Org:
       type: object
+      description: Organization definition
       required:
         - name
       properties:
@@ -654,16 +670,6 @@ components:
             - 3cd5fe4e-9ecb-4ec2-b7c7-0d19288c08e0
             - 78db4a21-968b-482f-b970-bdf0e8b30114
             - a5659535-43a8-486d-9b68-1da5d3fdee06
-    ItemType:
-      title: Item Type
-      description: Item Type
-      type: string
-      enum:
-        - blank
-        - message
-        - speaker
-        - lyrics
-        - timer
     SpeakerItem:
       type: object
       description: Speaker item definition
@@ -720,6 +726,7 @@ components:
           example: false
     Title:
       type: string
+      description: Title of the participant
       example: Stake President
     User:
       type: object
@@ -747,6 +754,7 @@ components:
           example: Anderson
     UserID:
       type: string
+      description: ID in UUID format of the application user
       example: 194bbf601ed54ef5
   parameters:
     dateFrom:
@@ -772,6 +780,13 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/HymnID'
+    itemId:
+      in: path
+      name: ItemID
+      description: Unique identifier for an item
+      required: true
+      schema:
+        $ref: '#/components/schemas/ID'
     language:
       in: query
       name: Language
@@ -814,13 +829,6 @@ components:
         minimum: 0
         maximum: 1000
         default: 50
-    itemId:
-      in: path
-      name: ItemID
-      description: Unique identifier for an item
-      required: true
-      schema:
-        $ref: '#/components/schemas/ID'
     userId:
       in: path
       name: UserID
@@ -835,6 +843,18 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/BlankItem'
+    item:
+      description: A single generic item
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Item'
+    items:
+      description: A list of items
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Items'
     lyricsItem:
       description: A single lyrics item
       content:
@@ -875,46 +895,6 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/Org'
-    item:
-      description: List of items
-      content:
-        application/json:
-          schema:
-            oneOf:
-              - $ref: '#/components/schemas/BlankItem'
-              - $ref: '#/components/schemas/LyricsItem'
-              - $ref: '#/components/schemas/MessageItem'
-              - $ref: '#/components/schemas/SpeakerItem'
-              - $ref: '#/components/schemas/TimerItem'
-            discriminator:
-              propertyName: ItemType
-              mapping:
-                blank: '#/components/schemas/BlankItem'
-                lyrics: '#/components/schemas/LyricsItem'
-                message: '#/components/schemas/MessageItem'
-                speaker: '#/components/schemas/SpeakerItem'
-                timer: '#/components/schemas/TimerItem'
-    items:
-      description: List of items
-      content:
-        application/json:
-          schema:
-            type: array
-            items:
-              oneOf:
-                - $ref: '#/components/schemas/BlankItem'
-                - $ref: '#/components/schemas/LyricsItem'
-                - $ref: '#/components/schemas/MessageItem'
-                - $ref: '#/components/schemas/SpeakerItem'
-                - $ref: '#/components/schemas/TimerItem'
-            discriminator:
-              propertyName: ItemType
-              mapping:
-                blank: '#/components/schemas/BlankItem'
-                lyrics: '#/components/schemas/LyricsItem'
-                message: '#/components/schemas/MessageItem'
-                speaker: '#/components/schemas/SpeakerItem'
-                timer: '#/components/schemas/TimerItem'
     speakerItem:
       description: A single speaker item
       content:
@@ -934,7 +914,7 @@ components:
           schema:
             $ref: '#/components/schemas/User'
     users:
-      description: List of users
+      description: A list of users
       content:
         application/json:
           schema:
