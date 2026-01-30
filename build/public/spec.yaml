@@ -583,6 +583,10 @@ components:
           $ref: '#/components/schemas/MeetingRole'
         hymn_id:
           $ref: '#/components/schemas/HymnID'
+        show_optional:
+          type: boolean
+          default: false
+          example: true
         show_translation:
           type: boolean
           default: false

@@ -1,8 +1,9 @@
 package server
 
 import (
-    "github.com/gorilla/mux"
     "net/http"
+
+    "github.com/gorilla/mux"
 )
 
 type Route struct {
@@ -16,6 +17,10 @@ type Routes []Route
 func (s *Server) Route() {
     s.Router.Methods("OPTIONS").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
         s.Logger.Debug("Got a global OPTIONS request")
+        w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+        w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+        w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        w.Header().Set("Access-Control-Max-Age", "86400")
         w.WriteHeader(http.StatusOK)
     })
 
