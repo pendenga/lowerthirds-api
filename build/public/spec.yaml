@@ -43,7 +43,7 @@ paths:
       operationId: postItem
       responses:
         '201':
-          $ref: '#/components/responses/items'
+          $ref: '#/components/responses/item'
         '400':
           description: 'invalid input, item invalid'
         '409':
