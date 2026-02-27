@@ -756,10 +756,13 @@ components:
         last_name:
           type: string
           example: Anderson
+        social_id:
+          type: string
+          example: 194bbf601ed54ef5
     UserID:
       type: string
       description: ID in UUID format of the application user
-      example: 194bbf601ed54ef5
+      example: 8b5a81fe-8e52-49bb-8cc1-3445b5f0bf92
   parameters:
     dateFrom:
       in: query
